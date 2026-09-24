@@ -1,877 +1,733 @@
-// Azzurro Tech Website JavaScript
+/* Azzurro Technology inc. — azzurro.tech application layer.
+ *
+ * Hosted as a static site inside the azzurrotech client's silo on the
+ * stenella platform. There is no backend code of our own: content comes from
+ * the client's pod tables through stenella's public site-data endpoint, and
+ * all four Emperor42 libraries are loaded from the platform's canonical copy
+ * (/s/static/lib/*.js).
+ *
+ *   veni — custom elements: az-product-card, az-post-card
+ *   vidi — pod output rendered as cards (posts listing page)
+ *   vici — cookie-backed cart + encrypted order notes
+ *   vini — checkout workflow with progress persisted in localStorage
+ *
+ * Vanilla ES6 only. No libraries beyond the four above, no CDNs.
+ */
 
-// Global state
-let currentUser = null;
-let isLoading = false;
+(function () {
+  "use strict";
 
-// Initialize the website
-function initWebsite() {
-    setupEventListeners();
-    setupScrollspy();
-    setupModals();
-    loadComponentData();
-    checkUrlParams();
-}
+  var DATA = "/s/data/azzurrotech"; // pod tables, public read-only JSON
 
-// Setup event listeners
-function setupEventListeners() {
-    // Navigation links
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = this.getAttribute('href');
-            scrollToSection(target.substring(1));
+  /* ---- tiny safe DOM helpers -------------------------------------------- */
 
-            // Update active state
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
 
-    // Mobile menu toggle
-    const mobileToggle = document.querySelector('.mobile-menu-toggle');
-    if (mobileToggle) {
-        mobileToggle.addEventListener('click', function() {
-            toggleMobileMenu();
-        });
+  /* Build a DOM node without any innerHTML-with-data, so pod content can
+   * never inject markup. attrs values are set via attribute/property, and
+   * children are nodes or text strings (escaped). */
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        var v = attrs[k];
+        if (v == null) return;
+        if (k === "class") node.className = v;
+        else if (k === "text") node.textContent = v;
+        else if (k === "html") node.innerHTML = v; // only for trusted static markup
+        else if (k.slice(0, 2) === "on" && typeof v === "function") node.addEventListener(k.slice(2), v);
+        else if (k.indexOf("data-") === 0) node.setAttribute(k, v);
+        else node.setAttribute(k, v);
+      });
     }
-
-    // Modal close buttons
-    document.querySelectorAll('.close').forEach(closeBtn => {
-        closeBtn.addEventListener('click', function() {
-            const modal = this.closest('.modal');
-            closeModal(modal.id.replace('-modal', ''));
-        });
+    (children || []).forEach(function (c) {
+      if (c == null) return;
+      node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
     });
+    return node;
+  }
 
-    // Modal overlay clicks
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal(modal.id.replace('-modal', ''));
-            }
-        });
-    });
+  function qs(sel, scope) {
+    return (scope || document).querySelector(sel);
+  }
 
-    // Form submissions
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            handleFormSubmit(this);
-        });
-    });
+  function qsa(sel, scope) {
+    return Array.prototype.slice.call((scope || document).querySelectorAll(sel));
+  }
 
-    // Button clicks for services and components
-    document.querySelectorAll('[onclick^="useService"]').forEach(button => {
-        button.addEventListener('click', function() {
-            const service = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-            useService(service);
-        });
-    });
+  function money(n) {
+    var num = parseFloat(n);
+    if (isNaN(num)) return "$0.00";
+    return "$" + num.toFixed(2);
+  }
 
-    document.querySelectorAll('[onclick^="useComponent"]').forEach(button => {
-        button.addEventListener('click', function() {
-            const component = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-            useComponent(component);
-        });
-i    });
-
-    // Service cards hover effects
-    document.querySelectorAll('.service-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-8px)';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
-    });
-
-    // Component cards hover effects
-    document.querySelectorAll('.component-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-8px)';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
-    });
-
-    // Pricing cards hover effects
-    document.querySelectorAll('.pricing-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 12px 30px rgba(0, 102, 204, 0.2)';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = 'none';
-        });
-    });
-
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-        link.addEventListener('click', function(e) {
-            if (this.hostname === window.location.hostname && this.pathname === window.location.pathname) {
-                e.preventDefault();
-                const target = this.getAttribute('href');
-                if (target.startsWith('#')) {
-                    scrollToSection(target.substring(1));
-                }
-            }
-        });
-    });
-
-    // Scroll to top button (if exists)
-    let scrollTopBtn = document.getElementById('scroll-top');
-    if (!scrollTopBtn) {
-        scrollTopBtn = document.createElement('button');
-        scrollTopBtn.id = 'scroll-top';
-        scrollTopBtn.innerHTML = '↑';
-        scrollTopBtn.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            font-weight: bold;
-            z-index: 1000;
-            display: none;
-            transition: var(--transition);
-        `;
-        document.body.appendChild(scrollTopBtn);
-
-        scrollTopBtn.addEventListener('click', function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+  function fmtDate(iso) {
+    if (!iso) return "";
+    // Parse YYYY-MM-DD as a *local* date so the displayed day never shifts
+    // across timezones (new Date("2026-06-01") is midnight UTC).
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso));
+    if (m) {
+      var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+      }
     }
-}
+    var t = new Date(iso);
+    if (isNaN(t.getTime())) return iso;
+    return t.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  }
 
-// Scroll spy - update active navigation on scroll
-function setupScrollspy() {
-    const sections = document.querySelectorAll('section[id]');
+  function params() {
+    return new URLSearchParams(window.location.search);
+  }
 
-    function updateActiveNav() {
-        let current = '';
-        const scrollPosition = window.scrollY + 100;
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-
-            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + current) {
-                link.classList.add('active');
-            }
-        });
+  function toast(msg) {
+    var box = qs("#toast");
+    if (!box) {
+      box = el("div", { id: "toast", class: "toast" });
+      document.body.appendChild(box);
     }
+    box.textContent = msg;
+    box.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { box.classList.remove("show"); }, 2600);
+  }
 
-    window.addEventListener('scroll', updateActiveNav);
-    updateActiveNav(); // Initial call
-}
+  /* ---- data access: stenella public site-data ---------------------------- */
 
-// Setup modals
-function setupModals() {
-    // Close modals with ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeAllModals();
-        }
-    });
-}
+  function fetchTable(table, opts) {
+    var url = DATA + "/" + table;
+    var q = new URLSearchParams();
+    if (opts) {
+      Object.keys(opts).forEach(function (k) {
+        if (opts[k] != null && opts[k] !== "") q.set(k, opts[k]);
+      });
+    }
+    var s = q.toString();
+    if (s) url += "?" + s;
+    return fetch(url, { credentials: "same-origin", headers: { Accept: "application/json" } })
+      .then(function (res) {
+        if (!res.ok) throw new Error(table + ": HTTP " + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        return (data && data.records) ? data.records : [];
+      });
+  }
 
-// Toggle mobile menu
-function toggleMobileMenu() {
-    const navLinks = document.querySelector('.nav-links');
-    const toggle = document.querySelector('.mobile-menu-toggle');
+  function byId(rows, id) {
+    for (var i = 0; i < rows.length; i++) if (rows[i].id === id || rows[i].slug === id) return rows[i];
+    return null;
+  }
 
-    if (navLinks.style.display === 'flex') {
-        navLinks.style.display = 'none';
-        toggle.innerHTML = '<span></span><span></span><span></span>';
+  /* ---- cart — cookie-backed through vici (localStorage fallback) ---------
+   * cart shape: [ { id, qty }, ... ]; item details are read from pod data at
+   * render time so prices always reflect the published table. */
+
+  var CART_KEY = "azzurro_cart";
+
+  function viciGet(name) {
+    if (window.vici && window.vici.cookieGet) {
+      var v = window.vici.cookieGet(name);
+      if (v != null) return v;
+    }
+    try { return window.localStorage.getItem(name); } catch (e) { return null; }
+  }
+
+  function viciSet(name, value) {
+    if (window.vici && window.vici.cookieSet) {
+      window.vici.cookieSet(name, value, 30, { path: "/", sameSite: "Lax" });
+    }
+    try { window.localStorage.setItem(name, value); } catch (e) { /* ignore */ }
+  }
+
+  function viciDel(name) {
+    if (window.vici && window.vici.cookieDelete) window.vici.cookieDelete(name);
+    try { window.localStorage.removeItem(name); } catch (e) { /* ignore */ }
+  }
+
+  var cart = {
+    _items: [],
+    load: function () {
+      try {
+        var raw = viciGet(CART_KEY);
+        var parsed = raw ? JSON.parse(raw) : [];
+        this._items = Array.isArray(parsed) ? parsed.filter(function (i) { return i && i.id && i.qty > 0; }) : [];
+      } catch (e) {
+        this._items = [];
+      }
+      return this._items;
+    },
+    save: function () {
+      viciSet(CART_KEY, JSON.stringify(this._items));
+      this.paint();
+    },
+    count: function () {
+      return this._items.reduce(function (n, i) { return n + i.qty; }, 0);
+    },
+    add: function (id, qty) {
+      qty = qty || 1;
+      var line = this._items.find(function (i) { return i.id === id; });
+      if (line) line.qty += qty;
+      else this._items.push({ id: id, qty: qty });
+      this.save();
+      this.paint();
+      toast("Added to cart");
+    },
+    setQty: function (id, qty) {
+      var line = this._items.find(function (i) { return i.id === id; });
+      if (!line) return;
+      line.qty = Math.max(1, parseInt(qty, 10) || 1);
+      this.save();
+    },
+    remove: function (id) {
+      this._items = this._items.filter(function (i) { return i.id !== id; });
+      this.save();
+    },
+    clear: function () {
+      this._items = [];
+      viciDel(CART_KEY);
+      this.save();
+    },
+    lines: function (productsById) {
+      var out = [];
+      this._items.forEach(function (li) {
+        var p = productsById[li.id];
+        if (p) out.push({ product: p, qty: li.qty, unit: p.sale_price && p.on_sale === "true" ? p.sale_price : p.price });
+      });
+      return out;
+    },
+    total: function (lines) {
+      return lines.reduce(function (n, l) { return n + parseFloat(l.unit || 0) * l.qty; }, 0);
+    },
+    paint: function () {
+      qsa("[data-cart-badge]").forEach(function (b) {
+        var n = cart.count();
+        b.textContent = n;
+        b.classList.toggle("hidden", n === 0);
+      });
+    }
+  };
+
+  /* ---- veni: custom elements ---------------------------------------------
+   * Defined through veni so they are discovered, registered and upgraded on
+   * every page via veni.init(). Light DOM (no shadow) so the site stylesheet
+   * applies. Data is bound as a property before insertion. */
+
+  // shared card shell
+  function cardShell(thumb, priceNode) {
+    var root = el("article", { class: "card" });
+    if (thumb) {
+      var t = el("div", { class: "thumb" });
+      t.appendChild(thumb);
+      root.appendChild(t);
+    }
+    var body = el("div", { class: "body" });
+    if (priceNode) body.appendChild(priceNode);
+    root.appendChild(body);
+    return { root: root, body: body };
+  }
+
+  function productPriceNode(p) {
+    var price = el("div", { class: "price" });
+    if (p.on_sale === "true" && p.sale_price) {
+      price.appendChild(el("span", { class: "old", text: money(p.price) }));
+      price.appendChild(el("span", { class: "sale-price", text: money(p.sale_price) }));
     } else {
-        navLinks.style.display = 'flex';
-        navLinks.style.flexDirection = 'column';
-        toggle.innerHTML = '×';
-        toggle.style.fontSize = '24px';
+      price.appendChild(el("span", { text: money(p.price) }));
     }
-}
+    return price;
+  }
 
-// Show modal
-function showModal(modalId) {
-    const modal = document.getElementById(modalId + '-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        modal.classList.add('show');
-        modal.focus();
+  function imageFor(p) {
+    return el("img", { src: esc(p.image || "assets/logo.png"), alt: esc(p.name), loading: "lazy" });
+  }
 
-        // Clear forms
-        if (modalId === 'login') {
-            document.getElementById('login-form')?.reset();
-        } else if (modalId === 'signup') {
-            document.getElementById('signup-form')?.reset();
-        }
+  window.AzProductCard = class AzProductCard extends HTMLElement {
+    connectedCallback() {
+      if (this._rendered) return;
+      this._rendered = true;
+      var p = this.product || {};
+      var shell = cardShell(imageFor(p), productPriceNode(p));
+      var badge = null;
+      if (p.on_sale === "true" && p.sale_price) badge = "Sale";
+      if (badge) shell.root.firstChild.appendChild(el("span", { class: "badge", text: badge }));
+      shell.body.appendChild(el("h3", {}, [el("a", { href: "product.html?slug=" + encodeURIComponent(p.slug || p.id), text: p.name })]));
+      shell.body.appendChild(el("p", { class: "excerpt", text: p.short || p.description || "" }));
+      var act = el("div", { class: "actions" });
+      act.appendChild(el("button", { class: "btn small", text: "Add to cart", onclick: function () { cart.add(p.id, 1); } }));
+      act.appendChild(el("a", { class: "btn small ghost", href: "product.html?slug=" + encodeURIComponent(p.slug || p.id), text: "Details" }));
+      shell.body.appendChild(act);
+      this.appendChild(shell.root);
     }
-}
+  };
 
-// Close modal
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId + '-modal');
-    if (modal) {
-        modal.style.display = 'none';
-        modal.classList.remove('show');
+  window.AzPostCard = class AzPostCard extends HTMLElement {
+    connectedCallback() {
+      if (this._rendered) return;
+      this._rendered = true;
+      var post = this.post || {};
+      var shell = cardShell(null, null);
+      shell.body.appendChild(el("p", { class: "meta", text: (post.category || "Article") + " · " + fmtDate(post.date) }));
+      shell.body.appendChild(el("h3", {}, [el("a", { href: "post.html?slug=" + encodeURIComponent(post.slug || post.id), text: post.title })]));
+      shell.body.appendChild(el("p", { class: "excerpt", text: post.excerpt || "" }));
+      shell.body.appendChild(el("a", { class: "btn small ghost", href: "post.html?slug=" + encodeURIComponent(post.slug || post.id), text: "Read more" }));
+      this.appendChild(shell.root);
     }
-}
+  };
 
-// Close all modals
-function closeAllModals() {
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.style.display = 'none';
-        modal.classList.remove('show');
+  function defineComponents() {
+    if (!window.veni || !window.veni.define) return;
+    window.veni.define("az-product-card", window.AzProductCard);
+    window.veni.define("az-post-card", window.AzPostCard);
+    if (window.veni.init) window.veni.init();
+  }
+
+  /* ---- shared renderers (products / posts) ------------------------------- */
+
+  function renderProductCards(container, products, limit) {
+    if (!container) return;
+    container.innerHTML = "";
+    if (!products.length) {
+      container.appendChild(el("p", { class: "muted", text: "No products published yet." }));
+      return;
+    }
+    products.slice(0, limit || products.length).forEach(function (p) {
+      var card = document.createElement("az-product-card");
+      card.product = p;
+      container.appendChild(card);
     });
-}
+  }
 
-// Show login modal
-function showLoginModal() {
-    closeAllModals();
-    showModal('login');
-}
+  function renderPostCards(container, posts, limit) {
+    if (!container) return;
+    container.innerHTML = "";
+    if (!posts.length) {
+      container.appendChild(el("p", { class: "muted", text: "No posts published yet." }));
+      return;
+    }
+    posts.slice(0, limit || posts.length).forEach(function (post) {
+      var card = document.createElement("az-post-card");
+      card.post = post;
+      container.appendChild(card);
+    });
+  }
 
-// Show signup modal
-function showSignupModal() {
-    closeAllModals();
-    showModal('signup');
-}
+  function sortBy(rows, key, desc) {
+    return rows.slice().sort(function (a, b) {
+      var av = a[key] != null ? a[key] : "";
+      var bv = b[key] != null ? b[key] : "";
+      var cmp = av < bv ? -1 : av > bv ? 1 : 0;
+      return desc ? -cmp : cmp;
+    });
+  }
 
-// Show demo modal
-function showDemoModal() {
-    closeAllModals();
-    showModal('demo');
-}
+  /* ---- nav chrome --------------------------------------------------------- */
 
-// Scroll to section
-function scrollToSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-        const offset = 80; // Header offset
-        const elementPosition = section.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - offset;
+  function wireNav() {
+    var toggle = qs(".mobile-menu-toggle");
+    var links = qs(".nav-links");
+    if (toggle && links) {
+      toggle.addEventListener("click", function () { links.classList.toggle("open"); });
+    }
+    var badge = qs("[data-cart-badge]");
+    if (badge) cart.paint();
+  }
 
-        window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
+  /* ---- pages --------------------------------------------------------------- */
+
+  function pageHome() {
+    var grid = qs("#hero-products");
+    if (grid) {
+      fetchTable("products").then(function (rows) {
+        renderProductCards(grid, sortBy(rows.filter(function (p) { return p.featured === "true"; }), "order", false), 4);
+      }).catch(function (e) { grid.innerHTML = ""; grid.appendChild(el("p", { class: "muted", text: "Products are not available right now." })); });
+    }
+    var latest = qs("#latest-posts");
+    if (latest) {
+      fetchTable("posts").then(function (rows) {
+        renderPostCards(latest, sortBy(rows, "date", true), 3);
+      }).catch(function () {
+        latest.innerHTML = "";
+        latest.appendChild(el("p", { class: "muted", text: "Posts are not available right now." }));
+      });
+    }
+    var contact = qs("#contact-form");
+    if (contact) {
+      contact.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name = qs("#cf-name", contact).value.trim();
+        var mail = qs("#cf-email", contact).value.trim();
+        var msg = qs("#cf-message", contact).value.trim();
+        var subject = encodeURIComponent("Contact — azzurro.tech");
+        var body = encodeURIComponent(name + "\n\n" + msg);
+        window.location.href = "mailto:info@azzurro.tech?subject=" + subject + "&body=" + body;
+        toast("Opening your mail app…");
+      });
+    }
+  }
+
+  function pageShop() {
+    var grid = qs("#product-grid");
+    if (!grid) return;
+    fetchTable("products").then(function (rows) {
+      renderProductCards(grid, sortBy(rows, "order", false), 100);
+    }).catch(function () {
+      grid.innerHTML = "";
+      grid.appendChild(el("p", { class: "muted", text: "Products are not available right now." }));
+    });
+  }
+
+  function pageProduct() {
+    var slug = params().get("slug");
+    var box = qs("#product-detail");
+    if (!box) return;
+    fetchTable("products").then(function (rows) {
+      var p = byId(rows, slug);
+      if (!p) { box.innerHTML = ""; box.appendChild(el("p", { class: "muted", text: "Product not found." })); return; }
+      box.appendChild(el("div", { class: "thumb", }, [imageFor(p)]));
+      var info = el("div", { class: "info" });
+      if (p.on_sale === "true" && p.sale_price) info.appendChild(el("span", { class: "badge", text: "Sale" }));
+      info.appendChild(el("h1", { text: p.name }));
+      info.appendChild(priceBig(p));
+      info.appendChild(el("p", { text: p.description || "" }));
+      var act = el("div", { class: "row" });
+      act.appendChild(el("button", { class: "btn", text: "Add to cart", onclick: function () { cart.add(p.id, 1); } }));
+      act.appendChild(el("a", { class: "btn secondary", href: "shop.html", text: "Browse the shop" }));
+      info.appendChild(act);
+      if (p.on_sale === "true") info.appendChild(el("p", { class: "notice", text: "Launch pricing — price shown on the cart reflects the sale." }));
+      box.appendChild(info);
+    }).catch(function () {
+      box.innerHTML = "";
+      box.appendChild(el("p", { class: "muted", text: "Product is not available right now." }));
+    });
+  }
+
+  function priceBig(p) {
+    var price = el("div", { class: "price big" });
+    if (p.on_sale === "true" && p.sale_price) {
+      price.appendChild(el("span", { class: "old", text: money(p.price) }));
+      price.appendChild(el("span", { class: "sale-price", text: money(p.sale_price) }));
+    } else {
+      price.appendChild(el("span", { text: money(p.price) }));
+    }
+    return price;
+  }
+
+  function cartPage() {
+    var linesBox = qs("#cart-lines");
+    if (!linesBox) return;
+    checkout.init();
+    var advance = qs(".wf-advance");
+    if (advance) advance.addEventListener("click", function () { checkout.advance(); });
+    renderCart();
+    var checkoutBtn = qs("#checkout-btn");
+    if (checkoutBtn) checkoutBtn.addEventListener("click", startCheckout);
+  }
+
+  function productsByIdCache() {
+    var cache = productsByIdCache._c;
+    if (cache) return Promise.resolve(cache);
+    return fetchTable("products").then(function (rows) {
+      var map = {};
+      rows.forEach(function (p) { map[p.id] = p; map[p.slug] = p; });
+      productsByIdCache._c = map;
+      return map;
+    });
+  }
+
+  function renderCart() {
+    var linesBox = qs("#cart-lines");
+    var totalBox = qs("#cart-total");
+    var emptyBox = qs("#cart-empty");
+    productsByIdCache().then(function (byIdMap) {
+      var lines = cart.lines(byIdMap);
+      linesBox.innerHTML = "";
+      if (!lines.length) {
+        if (emptyBox) emptyBox.classList.remove("hidden");
+        if (totalBox) totalBox.textContent = "Total: $0.00";
+        var checkoutBtn = qs("#checkout-btn");
+        if (checkoutBtn) checkoutBtn.disabled = true;
+        return;
+      }
+      if (emptyBox) emptyBox.classList.add("hidden");
+      lines.forEach(function (l) {
+        linesBox.appendChild(cartLineEl(l, byIdMap));
+      });
+      var t = cart.total(lines);
+      if (totalBox) totalBox.textContent = "Total: " + money(t);
+      var checkoutBtn = qs("#checkout-btn");
+      if (checkoutBtn) checkoutBtn.disabled = false;
+    }).catch(function () {
+      linesBox.innerHTML = "";
+      linesBox.appendChild(el("p", { class: "muted", text: "Cart could not be loaded right now." }));
+    });
+  }
+
+  function cartLineEl(line, byIdMap) {
+    var p = line.product;
+    var row = el("div", { class: "cart-line" });
+    var t = el("div", { class: "thumb" }, [el("img", { src: esc(p.image || "assets/logo.png"), alt: esc(p.name) })]);
+    row.appendChild(t);
+    var info = el("div", { class: "info" });
+    info.appendChild(el("h4", {}, [el("a", { href: "product.html?slug=" + encodeURIComponent(p.slug || p.id), text: p.name })]));
+    info.appendChild(el("p", { class: "muted", text: money(line.unit) + " each" }));
+    row.appendChild(info);
+    var qty = el("input", { class: "qty", type: "number", min: "1", value: String(line.qty), "aria-label": "Quantity" });
+    qty.addEventListener("change", function () { cart.setQty(line.product.id, qty.value); renderCart(); });
+    row.appendChild(qty);
+    row.appendChild(el("span", { text: money(parseFloat(line.unit || 0) * line.qty) }));
+    row.appendChild(el("button", { class: "btn small ghost", text: "Remove", onclick: function () { cart.remove(line.product.id); renderCart(); } }));
+    return row;
+  }
+
+  /* ---- vini: checkout workflow -------------------------------------------- */
+
+  var checkout = {
+    wfId: "azzurro-checkout",
+    init: function () {
+      if (!window.vini || !window.vini.define) return;
+      window.vini.define(this.wfId, {
+        id: this.wfId,
+        steps: [
+          { id: "contact", title: "Let us know where to reach you",
+            validate: function (d) { return d && d.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email); } },
+          { id: "review", title: "Review your cart",
+            validate: function () { return true; } },
+          { id: "done", title: "Order received",
+            validate: function () { return true; } }
+        ]
+      });
+      var self = this;
+      window.vini.on("start", function (wf) { self.paintStep(wf); self.open(); });
+      window.vini.on("step", function (wf) { self.paintStep(wf); });
+      window.vini.on("complete", function () {
+        self.close();
+        cart.clear();
+        toast("Order received — we will email your invoice shortly.");
+        var btn = qs("#checkout-btn");
+        if (btn) btn.disabled = true;
+      });
+      window.vini.on("error", function () { toast("Please complete the highlighted fields."); });
+    },
+    start: function () {
+      if (!window.vini) { toast("Checkout needs the platform workflow engine."); return; }
+      var data = cart._items.reduce(function (m, i) { m[i.id] = i.qty; return m; }, {});
+      window.vini.start(this.wfId, data);
+    },
+    advance: function () {
+      var wf = window.vini.get && window.vini.get(this.wfId);
+      if (!wf) return;
+      var step = wf.steps[wf.current];
+      if (step.id === "contact") {
+        var email = qs("#wf-email").value.trim();
+        window.vini.continue(this.wfId, { email: email });
+      } else if (step.id === "review") {
+        window.vini.continue(this.wfId, { confirmed: true });
+      } else if (step.id === "done") {
+        window.vini.complete(this.wfId);
+      }
+    },
+    paintStep: function (wf) {
+      var box = qs("#checkout-modal");
+      if (!box) return;
+      var totalSteps = wf.steps.length;
+      var idx = Math.min(wf.current, totalSteps - 1);
+      var bar = qs("#wf-progress-bar");
+      if (bar) bar.style.width = Math.round((idx / Math.max(totalSteps - 1, 1)) * 100) + "%";
+      var step = wf.steps[idx];
+      var stepsEl = qs(".steps", box);
+      stepsEl.innerHTML = "";
+      wf.steps.forEach(function (s, i) {
+        var line = el("div", { class: "step" });
+        var mark = i < idx ? "\u2713" : i === idx ? "\u2022" : "\u00B7";
+        line.appendChild(el("span", { class: "mark", text: mark }));
+        line.appendChild(el("span", { text: s.title }));
+        stepsEl.appendChild(line);
+      });
+      var body = qs(".wf-body", box);
+      body.innerHTML = "";
+      var head = qs(".wf-head", box);
+      if (step.id === "contact") {
+        var f = el("label", {}, ["Email address"]);
+        var input = el("input", { id: "wf-email", type: "email", required: "required", placeholder: "you@example.com" });
+        f.appendChild(input);
+        body.appendChild(f);
+        if (head) head.innerHTML = "Step " + (idx + 1) + " of " + totalSteps + ": " + step.title;
+      } else if (step.id === "review") {
+        body.appendChild(el("p", { text: "Review the items below. Payments are not captured on azzurro.tech today — invoices follow by email." }));
+        var summary = el("div", { class: "wf-summary" });
+        var lines = cart.lines(productsByIdCache._c || {});
+        if (!lines.length) {
+          // Product rows may not be cached yet (user jumped straight to
+          // checkout); refill and repaint this step.
+          productsByIdCache().then(function () {
+            var wf = window.vini && window.vini.get ? window.vini.get(checkout.wfId) : null;
+            if (wf) checkout.paintStep(wf);
+          });
+        }
+        lines.forEach(function (l) {
+          summary.appendChild(el("p", { text: l.product.name + " × " + l.qty + " — " + money(parseFloat(l.unit || 0) * l.qty) }));
         });
+        summary.appendChild(el("p", { class: "cart-total", text: "Total: " + money(cart.total(lines)) }));
+        body.appendChild(summary);
+        if (head) head.innerHTML = "Step " + (idx + 1) + " of " + totalSteps + ": Review your order";
+      } else if (step.id === "done") {
+        body.appendChild(el("p", { text: "Thank you — your order has been received and is stored locally. We will be in touch at the email you provided." }));
+        if (head) head.innerHTML = "All set";
+      }
+      var btn = qs(".wf-advance", box);
+      if (btn) {
+        btn.disabled = false;
+        if (step.id === "review") btn.textContent = "Confirm order";
+        else if (step.id === "done") btn.textContent = "Finish";
+        else btn.textContent = "Continue";
+      }
+    },
+    open: function () { var m = qs("#checkout-modal"); if (m) m.classList.add("open"); },
+    close: function () { var m = qs("#checkout-modal"); if (m) m.classList.remove("open"); }
+  };
+
+  function startCheckout() {
+    checkout.init();
+    checkout.start();
+  }
+
+  /* ---- vidi: posts listing -------------------------------------------------
+   * The posts page hands rendering to vidi (pod output as cards + pager). The
+   * container gets rendered cards; post cards open post.html. */
+
+  function pagePostsVidi() {
+    var searchBtn = qs("#posts-search-btn");
+    var searchInput = qs("#posts-search");
+    if (searchBtn && searchInput) {
+      var go = function () {
+        var v = searchInput.value.trim();
+        window.location.href = "search.html?q=" + encodeURIComponent(v);
+      };
+      searchBtn.addEventListener("click", go);
+      searchInput.addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
     }
-}
-
-// Use service
-function useService(serviceName) {
-    closeAllModals();
-    console.log(`Using service: ${serviceName}`);
-
-    // Show notification
-    showNotification(`${serviceName} service details will be displayed here.`, 'info');
-
-    // Scroll to contact section for more info
-    setTimeout(() => {
-        scrollToSection('contact');
-        document.getElementById('service').value = serviceName;
-    }, 500);
-}
-
-// Use component
-function useComponent(componentName) {
-    closeAllModals();
-    console.log(`Using component: ${componentName}`);
-
-    // Show notification
-    showNotification(`${componentName} component details will be displayed here.`, 'info');
-
-    // Show demo modal
-    showDemoModal();
-}
-
-// Select pricing plan
-function selectPlan(planName) {
-    closeAllModals();
-    showNotification(`${planName} plan selected! Redirecting to checkout...`, 'success');
-    console.log(`Selected plan: ${planName}`);
-
-    // In real implementation, redirect to payment page
-    setTimeout(() => {
-        showNotification('Payment form would open here.', 'info');
-    }, 1000);
-}
-
-// Handle contact form submission
-function handleContactSubmit(event) {
-    event.preventDefault();
-
-    const form = event.target;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-
-    showNotification('Sending your message...', 'info');
-
-    // Simulate form submission
-    setTimeout(() => {
-        showNotification('Thank you! Your message has been sent successfully. We will contact you soon.', 'success');
-        form.reset();
-        closeAllModals();
-    }, 2000);
-}
-
-// Handle login form submission
-function handleLogin(event) {
-    event.preventDefault();
-
-    const form = event.target;
-    const email = form.querySelector('input[type="email"]').value;
-    const password = form.querySelector('input[type="password"]').value;
-
-    if (!email || !password) {
-        showNotification('Please fill in all fields.', 'error');
-        return;
-    }
-
-    showNotification('Signing in...', 'info');
-
-    // Simulate login
-    setTimeout(() => {
-        currentUser = { email: email };
-        showNotification('Successfully logged in!', 'success');
-        closeModal('login');
-        updateUIForLoggedInUser();
-    }, 1500);
-}
-
-// Handle signup form submission
-function handleSignup(event) {
-    event.preventDefault();
-
-    const form = event.target;
-    const name = form.querySelectorAll('input[type="text"]')[0].value;
-    const email = form.querySelectorAll('input[type="email"]')[0].value;
-    const password = form.querySelectorAll('input[type="password"]')[0].value;
-    const plan = form.querySelector('select').value;
-
-    if (!name || !email || !password || !plan) {
-        showNotification('Please fill in all fields.', 'error');
-        return;
-    }
-
-    showNotification('Creating your account...', 'info');
-
-    // Simulate signup
-    setTimeout(() => {
-        currentUser = { name: name, email: email, plan: plan };
-        showNotification('Account created successfully!', 'success');
-        closeModal('signup');
-        updateUIForLoggedInUser();
-    }, 1500);
-}
-
-// Update UI for logged in user
-function updateUIForLoggedInUser() {
-    const authButtons = document.querySelector('.auth-buttons');
-    if (authButtons) {
-        authButtons.innerHTML = `
-            <div class="user-menu">
-                <button class="btn btn-outline" onclick="showUserMenu()">Welcome, ${currentUser?.name || currentUser?.email}! ▼</button>
-                <div class="user-dropdown" id="user-dropdown" style="display: none;">
-                    <a href="#" onclick="viewAccount()">My Account</a>
-                    <a href="#" onclick="viewBilling()">Billing</a>
-                    <a href="#" onclick="viewSettings()">Settings</a>
-                    <a href="#" onclick="logoutUser()">Log Out</a>
-                </div>
-            </div>
-        `;
-    }
-}
-
-// Show user menu
-function showUserMenu() {
-    const dropdown = document.getElementById('user-dropdown');
-    if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-    }
-}
-
-// View account
-function viewAccount() {
-    closeAllModals();
-    showNotification('Account details would be shown here.', 'info');
-}
-
-// View billing
-function viewBilling() {
-    closeAllModals();
-    showNotification('Billing history and payment details would be shown here.', 'info');
-}
-
-// View settings
-function viewSettings() {
-    closeAllModals();
-    showNotification('Settings would be shown here.', 'info');
-}
-
-// Logout user
-function logoutUser() {
-    currentUser = null;
-    closeAllModals();
-    showNotification('Successfully logged out.', 'success');
-
-    // Reset auth buttons
-    const authButtons = document.querySelector('.auth-buttons');
-    if (authButtons) {
-        authButtons.innerHTML = `
-            <button class="btn btn-secondary" onclick="showLoginModal()">Sign In</button>
-            <button class="btn btn-primary" onclick="showSignupModal()">Get Started</button>
-        `;
-    }
-}
-
-// Load component data
-function loadComponentData() {
-    // Load VENI web component example
-    loadVENIComponent();
-
-    // Load VIDI chart example
-    loadVIDIExample();
-}
-
-// Load VENI component example
-function loadVENIComponent() {
-    const veniContainer = document.createElement('div');
-    veniContainer.innerHTML = `
-        <div class="component-example">
-            <h4>VENI Web Component</h4>
-            <p>This demonstrates how VENI web components can be embedded directly in your pages without any servers.</p>
-            <button class="btn btn-primary" onclick="demoVENI()">Demo VENI Component</button>
-        </div>
-    `;
-
-    console.log('VENI component loaded:', veniContainer);
-}
-
-// Load VIDI example
-function loadVIDIExample() {
-    const vidiContainer = document.createElement('div');
-    vidiContainer.innerHTML = `
-        <div class="component-example">
-            <h4>VIDI Data Visualization</h4>
-            <p>This demonstrates VIDI's data visualization and management capabilities with real-time charts and filters.</p>
-            <button class="btn btn-primary" onclick="demoVIDI()">Demo VIDI Component</button>
-        </div>
-    `;
-
-    console.log('VIDI component loaded:', vidiContainer);
-}
-
-// Demo VENI component
-function demoVENI() {
-    showNotification('VENI component demo would show web component discovery and generation here.', 'info');
-}
-
-// Demo VIDI component
-function demoVIDI() {
-    showNotification('VIDI component demo would show data visualization and management here.', 'info');
-}
-
-// Check URL parameters
-function checkUrlParams() {
-    const urlParams = new URLSearchParams(window.location.search);
-
-    if (urlParams.get('demo') === 'true') {
-        showDemoModal();
-    }
-
-    if (urlParams.get('service')) {
-        const service = urlParams.get('service');
-        scrollToSection('services');
-        setTimeout(() => {
-            useService(service);
-        }, 500);
-    }
-}
-
-// Show notification
-function showNotification(message, type = 'info') {
-    // Remove existing notifications
-    document.querySelectorAll('.notification').forEach(n => n.remove());
-
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        border-radius: var(--border-radius);
-        color: white;
-        font-weight: 600;
-        z-index: 2000;
-        animation: slideInRight 0.3s ease;
-        ${type === 'success' ? 'background: var(--success-color);' : ''}
-        ${type === 'error' ? 'background: var(--danger-color);' : ''}
-        ${type === 'warning' ? 'background: var(--warning-color); color: #333;' : ''}
-        ${type === 'info' ? 'background: var(--primary-color);' : ''}
-    `;
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }
-    }, 3000);
-}
-
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-
-    @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-`;
-document.head.appendChild(style);
-
-// Handle window resize
-let resizeTimeout;
-window.addEventListener('resize', function() {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(function() {
-        // Update any responsive elements
-        updateScrollTopButton();
-    }, 250);
-});
-
-// Update scroll top button visibility
-function updateScrollTopButton() {
-    const scrollTopBtn = document.getElementById('scroll-top');
-    if (scrollTopBtn) {
-        if (window.pageYOffset > 500) {
-            scrollTopBtn.style.display = 'block';
-        } else {
-            scrollTopBtn.style.display = 'none';
-        }
-    }
-}
-
-// Initialize on DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initWebsite);
-} else {
-    initWebsite();
-}
-
-// Global functions for HTML onclick handlers
-window.showLoginModal = showLoginModal;
-window.showSignupModal = showSignupModal;
-window.showDemoModal = showDemoModal;
-window.scrollToSection = scrollToSection;
-window.useService = useService;
-window.useComponent = useComponent;
-window.selectPlan = selectPlan;
-window.handleContactSubmit = handleContactSubmit;
-window.closeAllModals = closeAllModals;
-window.demoVENI = demoVENI;
-window.demoVIDI = demoVIDI;
-
-// Enhanced Emperor42 Integration System
-const emperor42System = {
-  // Initialize all Emperor42 projects
-  init: function() {
-    // Initialize VIDI with enhanced analytics
-    if (typeof Vidi !== 'undefined') {
-      this.vidi = new Vidi({
-        dataSource: '/api/website-analytics',
-        enableCORS: true,
-        pagination: { pageSize: 12, enabled: true },
-        encryptionKey: null,
-        cookieSettings: { secure: false, httpOnly: true }
-      });
-      this.vidi.init();
-    }
-
-    // Initialize VICI with website content management
-    if (typeof Vici !== 'undefined') {
-      this.vici = new Vici({
-        autoSave: true,
-        saveInterval: 3000,
-        user: { id: 'admin', username: 'Website Admin' },
-        permissions: {
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true
-        },
-        auditLog: true,
-        encryptionKey: null
-      });
-      this.vici.init();
-    }
-
-    // Initialize VINI with workflow system
-    if (typeof Vini !== 'undefined') {
-      this.vini = new Vini({
-        autoStart: false,
-        debugMode: false,
-        serverEndpoint: null,
-        encryptionKey: null,
-        validationSchema: {
-          requiredFields: ['name', 'email', 'message'],
-          minLength: 5,
-          maxLength: 500
-        }
-      });
-      this.vini.init();
-    }
-
-    // Setup live component scanning
-    this.setupLiveComponentScanning();
-
-    // Setup website integration
-    this.setupWebsiteIntegration();
-  },
-
-  // Setup live component scanning using VENI
-  setupLiveComponentScanning: function() {
-    setTimeout(() => {
-      const componentCount = 15; // Simulated component count
-      console.log(`VENI Component Scanner found ${componentCount} components`);
-
-      this.updateComponentStats('veni', componentCount, 'Live');
-    }, 1000);
-  },
-
-  // Setup website integration with VICI and VINI
-  setupWebsiteIntegration: function() {
-    // Setup VICI website content management
-    this.setupVICIWebsiteManagement();
-
-    // Setup VINI website workflows
-    this.setupVINIWebsiteWorkflows();
-
-    // Setup VIDI analytics for website interactions
-    this.setupVIDIAnalytics();
-  },
-
-  // Setup VICI website content management
-  setupVICIWebsiteManagement: function() {
-    if (!this.vici) return;
-
-    const websitePages = [
-      { id: 'home', title: 'Home', status: 'published', version: '1.2.3' },
-      { id: 'services', title: 'Services', status: 'published', version: '1.2.1' },
-      { id: 'components', title: 'Components', status: 'published', version: '1.2.2' },
-      { id: 'pricing', title: 'Pricing', status: 'published', version: '1.2.0' },
-      { id: 'contact', title: 'Contact', status: 'published', version: '1.1.9' }
-    ];
-
-    // Create website content management using VICI
-    websitePages.forEach(page => {
-      if (!this.vici.getPage(page.id)) {
-        this.vici.createPage({
-          title: page.title,
-          slug: page.id,
-          content: `Content for ${page.title} page`,
-          html: `<h1>${page.title}</h1><p>Website content for ${page.title} section.</p>`,
-          css: `.page-${page.id} { background: var(--background-primary); }`,
-          createdBy: 'admin',
-          updatedBy: 'admin',
-          status: page.status,
-          version: page.version
+    if (!window.Vidi) { renderPostsFallback(); return; }
+    new window.Vidi({
+      dataSource: DATA + "/posts?limit=100",
+      container: "#vidi-cards-container",
+      pagination: "#vidi-pagination",
+      pageSize: 6,
+      titleField: "title",
+      onRender: function (rows, container) {
+        // Keep vidi as the data engine (fetch, ingest, pager); render the
+        // current page slice with the site's az-post-card elements so the
+        // cards link to post.html and match the site design.
+        container.innerHTML = "";
+        var start = this.page * this.pageSize;
+        var slice = this.rows.slice(start, start + this.pageSize);
+        slice.forEach(function (post) {
+          var card = document.createElement("az-post-card");
+          card.post = post;
+          container.appendChild(card);
         });
       }
     });
-  },
-
-  // Setup VINI website workflows
-  setupVINIWebsiteWorkflows: function() {
-    if (!this.vini) return;
-
-    // Create user registration workflow
-    if (!this.vini.getWorkflowByName('User Registration')) {
-      this.vini.createWorkflow('User Registration', [
-        {
-          id: 'step-1',
-          name: 'Website Visit',
-          type: 'trigger',
-          description: 'User visits Azzurro Tech website'
-        },
-        {
-          id: 'step-2',
-          name: 'Navigation to Registration',
-          type: 'action',
-          description: 'User clicks "Get Started" button'
-        },
-        {
-          id: 'step-3',
-          name: 'Form Completion',
-          type: 'input',
-          description: 'User fills registration form'
-        },
-        {
-          id: 'step-4',
-          name: 'Email Verification',
-          type: 'validation',
-          description: 'User verifies email address'
-        },
-        {
-          id: 'step-5',
-          name: 'Account Setup',
-          type: 'completion',
-          description: 'User completes account setup'
-        }
-      ]);
-    }
-
-    // Create component service request workflow
-    if (!this.vini.getWorkflowByName('Component Service Request')) {
-      this.vini.createWorkflow('Component Service Request', [
-        {
-          id: 'step-1',
-          name: 'Component Selection',
-          type: 'trigger',
-          description: 'User selects an Emperor42 component'
-        },
-        {
-          id: 'step-2',
-          name: 'Service Request',
-          type: 'action',
-          description: 'User requests component service'
-        },
-        {
-          id: 'step-3',
-          name: 'Details Submission',
-          type: 'input',
-          description: 'User provides component-specific details'
-        },
-        {
-          id: 'step-4',
-          name: 'Request Submission',
-          type: 'completion',
-          description: 'User submits the service request'
-        }
-      ]);
-    }
-  },
-
-  // Setup VIDI analytics for website interactions
-  setupVIDIAnalytics: function() {
-    if (!this.vidi) return;
-
-    // Track website component interactions
-    setInterval(() => {
-      this.trackComponentInteractions();
-    }, 5000);
-  },
-
-  // Track component interactions
-  trackComponentInteractions: function() {
-    const interactions = [
-      { component: 'veni', action: 'card-click', category: 'component-interaction', value: 1 },
-      { component: 'vidi', action: 'analytics-view', category: 'component-interaction', value: 1 },
-      { component: 'vici', action: 'page-edit', category: 'component-interaction', value: 1 },
-      { component: 'vini', action: 'workflow-start', category: 'component-interaction', value: 1 }
-    ];
-
-    interactions.forEach(interaction => {
-      this.vidi.addData(interaction);
-    });
-  },
-
-  // Update component statistics display
-  updateComponentStats: function(component, count, status) {
-    const element = document.getElementById(`${component}-count`);
-    if (element) {
-      element.textContent = count;
-    }
-
-    const statusElement = document.querySelector(`.${component}-status`);
-    if (statusElement) {
-      statusElement.textContent = status;
-      statusElement.style.color = status === 'Live' ? '#28a745' : '#ffc107';
-    }
-  },
-
-  // Update VIDI analytics display
-  updateVidiaDisplay: function() {
-    if (!this.vidi) return;
-
-    const data = this.vidi.getPaginatedData(1, { category: 'component-interaction' });
-
-    const totalInteractions = data.length;
-    const activeUsers = [...new Set(data.map(d => d.component))].length;
-
-    document.getElementById('component-interactions').textContent = totalInteractions;
-    document.getElementById('active-users').textContent = activeUsers;
   }
-};
 
-// Global function to start Emperor42 integrations
-const startEmperor42Integrations = function() {
-  emperor42System.init();
-  showNotification('Emperor42 Integration System Initialized', 'success');
-};
+  function renderPostsFallback() {
+    var grid = qs("#vidi-cards-container");
+    if (!grid) return;
+    fetchTable("posts").then(function (rows) {
+      renderPostCards(grid, sortBy(rows, "date", true), 100);
+    }).catch(function () {
+      grid.innerHTML = "";
+      grid.appendChild(el("p", { class: "muted", text: "Posts are not available right now." }));
+    });
+  }
 
-// Global functions for VICI and VINI
-window.showVICIAdmin = function() {
-  closeAllModals();
-  showNotification('VICI Admin Interface would be displayed here.', 'info');
-};
+  /* ---- post article -------------------------------------------------------- */
 
-window.showVINIWorkflowBuilder = function() {
-  closeAllModals();
-  showNotification('VINI Workflow Builder would be displayed here.', 'info');
-};
+  function pagePost() {
+    var slug = params().get("slug");
+    var box = qs("#post-article");
+    if (!box) return;
+    fetchTable("posts").then(function (rows) {
+      var post = byId(rows, slug);
+      if (!post) { box.innerHTML = ""; box.appendChild(el("p", { class: "muted", text: "Post not found." })); return; }
+      box.appendChild(el("p", { class: "meta", text: (post.category || "Article") + " · " + fmtDate(post.date) }));
+      box.appendChild(el("h1", { text: post.title }));
+      box.appendChild(el("div", { class: "body" }, [el("p", { text: post.excerpt || "" })]));
+      if (post.body) box.appendChild(el("div", { class: "body", html: post.body }));
+      box.appendChild(el("p", {}, [el("a", { href: "posts.html", text: "\u2190 All posts" })]));
+    }).catch(function () {
+      box.innerHTML = "";
+      box.appendChild(el("p", { class: "muted", text: "Post is not available right now." }));
+    });
+  }
 
-window.startLiveComponentScan = function() {
-  emperor42System.updateComponentStats('veni', Math.floor(Math.random() * 20) + 5, 'Live');
-  showNotification('Live component scan started successfully!', 'success');
-};
+  /* ---- search --------------------------------------------------------------- */
 
-window.startLiveAnalytics = function() {
-  emperor42System.updateVidiaDisplay();
-  showNotification('Live analytics dashboard updated!', 'success');
-};
+  function pageSearch() {
+    var input = qs("#search-input");
+    var btn = qs("#search-btn");
+    var results = qs("#search-results");
+    if (!results) return;
+    if (btn && input) {
+      btn.addEventListener("click", function () {
+        var v = input.value.trim();
+        if (v) window.location.href = "search.html?q=" + encodeURIComponent(v);
+      });
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter") btn.click(); });
+    }
+    var q = params().get("q") || "";
+    if (input) input.value = q;
+    if (!q) { results.appendChild(el("p", { class: "muted", text: "Type a query above, or use the search box on the posts page." })); return; }
+    Promise.all([fetchTable("products"), fetchTable("posts")]).then(function (both) {
+      var products = both[0], posts = both[1];
+      var needle = q.toLowerCase();
+      var hitP = products.filter(function (p) {
+        return (p.name + " " + p.short + " " + p.description + " " + p.meta).toLowerCase().indexOf(needle) !== -1;
+      });
+      var hitPosts = posts.filter(function (post) {
+        return (post.title + " " + post.excerpt + " " + post.category).toLowerCase().indexOf(needle) !== -1;
+      });
+      results.innerHTML = "";
+      results.appendChild(el("h2", { text: "Products" }));
+      renderProductCards(results.appendChild(el("div", { class: "cards" })), hitP, 100);
+      results.appendChild(el("h2", { text: "Posts" }));
+      renderPostCards(results.appendChild(el("div", { class: "cards" })), sortBy(hitPosts, "date", true), 100);
+      if (!hitP.length && !hitPosts.length) {
+        results.appendChild(el("p", { class: "muted", text: "Nothing matched \u201C" + q + "\u201D." }));
+      }
+    }).catch(function () {
+      results.innerHTML = "";
+      results.appendChild(el("p", { class: "muted", text: "Search is not available right now." }));
+    });
+  }
 
-// Initialize Emperor42 integrations when website loads
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    // Start Emperor42 integrations after a short delay
-    setTimeout(() => {
-      startEmperor42Integrations();
-    }, 2000);
-  });
-} else {
-  // Website already loaded, initialize quickly
-  setTimeout(() => {
-    startEmperor42Integrations();
-  }, 2000);
-}
+  /* ---- boot ------------------------------------------------------------------ */
+
+  function boot() {
+    cart.load();
+    cart.paint();
+    wireNav();
+    defineComponents();
+    var year = qs("#year");
+    if (year) year.textContent = new Date().getFullYear();
+    var page = document.body.getAttribute("data-page");
+    if (page === "home") pageHome();
+    else if (page === "shop") pageShop();
+    else if (page === "product") pageProduct();
+    else if (page === "cart") cartPage();
+    else if (page === "posts") pagePostsVidi();
+    else if (page === "post") pagePost();
+    else if (page === "search") pageSearch();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();

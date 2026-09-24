@@ -1,0 +1,102 @@
+[
+  {
+    "id": "new-class-of-threat-ai-powered-adaptive-computer-worms",
+    "title": "New Class of Threat: AI-Powered Adaptive Computer Worms Demonstrate Autonomous Cyber Offense",
+    "slug": "new-class-of-threat-ai-powered-adaptive-computer-worms-demonstrate-autonomous-cyber-offense",
+    "date": "2026-06-01",
+    "category": "Security Brief",
+    "excerpt": "A groundbreaking academic paper from researchers at the University of Toronto, Vector Institute, University of Cambridge, and ServiceNow has demonstrated proof-of-concept malware that represents a fundamental shift in cybersecurity threats. The study shows that artificial intelligence agents can enable computer worms that generate tailored attack strategies in real-time — moving beyond the fixed exploit code that defined previous generations of malware.",
+    "image": "",
+    "order": "1"
+  },
+  {
+    "id": "azzurro-secure-may-2026-i",
+    "title": "Azzurro Secure: May 2026 I",
+    "slug": "azzurro-secure-may-2026-i",
+    "date": "2026-05-01",
+    "category": "Security Brief",
+    "excerpt": "As we move into May 2026, the cybersecurity landscape has shifted from rapid patching to active exploitation of previously disclosed flaws. Recent intelligence covers new active threats and the open-source defenses available to counter them — from fix-it-week rotation to zero-knowledge verification.",
+    "image": "",
+    "order": "2"
+  },
+  {
+    "id": "security-summary-2026-week-1",
+    "title": "Security Summary 2026 Week 1",
+    "slug": "security-summary-2026-week-1",
+    "date": "2026-01-07",
+    "category": "Security Notice",
+    "excerpt": "Our new weekly format — a post every 7 days on system security. These are the 8 security notices from 1 January 2026 until 7 January 2026, covering Veeam, and more.",
+    "image": "",
+    "order": "3"
+  },
+  {
+    "id": "the-path-to-true-data-sovereignty",
+    "title": "The Path to True Data Sovereignty: Why “Rented” Cloud Is No Longer an Option",
+    "slug": "the-path-to-true-data-sovereignty-why-rented-cloud-is-no-longer-an-option",
+    "date": "2026-01-05",
+    "category": "Opinion",
+    "excerpt": "In the modern digital landscape, businesses face a paradoxical challenge: we need the power of Artificial Intelligence to drive innovation, yet we are increasingly wary of handing our most sensitive data to rented cloud platforms.",
+    "image": "",
+    "order": "4"
+  },
+  {
+    "id": "security-notices-30-dec-to-5-jan",
+    "title": "Security notices from the 30th of December 2025 until the 5th of January 2025",
+    "slug": "security-notices-from-the-30th-of-december-2025-until-the-5th-of-january-2025",
+    "date": "2026-01-05",
+    "category": "Security Notice",
+    "excerpt": "These are the 2 security notices from December 30, 2025 to January 5, 2026, including an IBM Security Advisory rated High affecting core server infrastructure.",
+    "image": "",
+    "order": "5"
+  },
+  {
+    "id": "security-notices-29-dec",
+    "title": "Security Notices for the 29th of December 2025",
+    "slug": "security-notices-for-the-29th-of-december-2025",
+    "date": "2025-12-29",
+    "category": "Security Notice",
+    "excerpt": "These are the 4 security notices from 2025-12-29, including a Dell security advisory typically rated High because it affects core server and storage platforms.",
+    "image": "",
+    "order": "6"
+  },
+  {
+    "id": "security-notices-23-to-28-dec",
+    "title": "Security Notices from the 23rd of December 2025 to the 28th of December 2025",
+    "slug": "security-notices-from-the-23rd-of-december-2025-to-the-28th-of-december-2025",
+    "date": "2025-12-28",
+    "category": "Security Notice",
+    "excerpt": "These are the 5 security notices from 23 December 2025 until 28 December 2025, including a MongoDB security advisory rated Critical.",
+    "image": "",
+    "order": "7"
+  },
+  {
+    "id": "security-notices-22-dec",
+    "title": "Security Notices from the 22nd of December 2025",
+    "slug": "security-notices-from-the-22nd-of-december-2025",
+    "date": "2025-12-22",
+    "category": "Security Notice",
+    "excerpt": "These are the 5 security notices from 22 December 2025 — including WatchGuard Fireware OS (CVE-2025-14733) and further advisories from the Canadian Centre for Cyber Security.",
+    "image": "",
+    "order": "8"
+  },
+  {
+    "id": "security-notices-19-to-21-dec",
+    "title": "Security Notices from the 19th of December 2025 until the 21st of December 2025",
+    "slug": "security-notices-from-the-19th-of-december-2025-until-the-21st-of-december-2025",
+    "date": "2025-12-21",
+    "category": "Security Notice",
+    "excerpt": "These are the 4 security notices from 19th, 20th and 21st of December 2025 — an AI-generated summary based on the advisories listed on the Canadian Centre for Cyber Security's alerts page.",
+    "image": "",
+    "order": "9"
+  },
+  {
+    "id": "why-get-assurance-for-open-source-software",
+    "title": "Why get assurance for open source software?",
+    "slug": "why-get-assurance-for-open-source-software",
+    "date": "2025-12-10",
+    "category": "Opinion",
+    "excerpt": "Open-source software (OSS) powers everything from the apps on your phone to the servers that run large-scale enterprises. Its biggest strengths — transparency, community-driven innovation, and control of your own stack — also demand assurance that the software does what you need it to.",
+    "image": "",
+    "order": "10"
+  }
+]

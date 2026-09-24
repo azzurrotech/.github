@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Search — Azzurro Technology inc.</title>
+<meta name="description" content="Search the Azzurro catalogue and newsfeed." />
+<link rel="alternate" type="application/rss+xml" title="Azzurro Technology inc. » Feed" href="/s/feed/azzurrotech/combined.xml" />
+<link rel="alternate" type="application/atom+xml" title="Azzurro Technology inc. » Atom Feed" href="/s/feed/azzurrotech/combined.atom" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="search">
+<header class="header">
+  <nav class="nav">
+    <a class="logo" href="index.html"><img src="assets/logo.png" alt="Azzurro Technology inc." /></a>
+    <button class="mobile-menu-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="posts.html">Posts</a></li>
+      <li><a class="active" href="search.html">Search</a></li>
+      <li><a href="my-account.html">My Account</a></li>
+      <li><a href="/s/portal?client=azzurrotech">Platform</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="cart-link" href="cart.html" aria-label="Cart">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12z" /><circle cx="9" cy="20" r="1.6" /><circle cx="17" cy="20" r="1.6" /></svg>
+        <span class="cart-badge hidden" data-cart-badge>0</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<main class="section">
+  <div class="wrap">
+    <h1>Search</h1>
+    <p class="lede">Search the Azzurro catalogue (products) and the newsfeed (posts).</p>
+    <div class="searchbox">
+      <input type="search" id="search-input" placeholder="e.g. security, sovereignty, platform…" aria-label="Search azzurro.tech" value="" />
+      <button class="btn" id="search-btn">Search</button>
+    </div>
+    <div id="search-results" style="margin-top:28px"></div>
+    <noscript><p class="muted">This page needs JavaScript to search the platform content.</p></noscript>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="cols">
+    <div>
+      <h4>Azzurro Technology inc.</h4>
+      <p>Software problem solved.</p>
+      <p>info@azzurro.tech</p>
+      <p><a href="https://github.com/azzurrotech" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/company/azzurro-tech" target="_blank" rel="noopener">LinkedIn</a></p>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="shop.html">Products</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="refund_returns.html">Terms and Conditions</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="my-account.html">My Account</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="posts.html">Posts</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Updates</h4>
+      <ul>
+        <li><a href="/s/feed/azzurrotech/combined.xml">RSS Feed</a></li>
+        <li><a href="/s/feed/azzurrotech/combined.atom">Atom Feed</a></li>
+        <li><a href="/s/portal?client=azzurrotech">Client Portal</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="bottom">
+    <span>© <span id="year"></span> Azzurro Technology inc. All rights reserved.</span>
+    <span><a href="/s/portal?client=azzurrotech">Powered by the stenella platform</a></span>
+  </div>
+</footer>
+
+<script src="/s/static/lib/veni.js" defer></script>
+<script src="/s/static/lib/vidi.js" defer></script>
+<script src="/s/static/lib/vici.js" defer></script>
+<script src="/s/static/lib/vini.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>

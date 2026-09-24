@@ -1,0 +1,67 @@
+[
+  {
+    "id": "azzurro-150",
+    "name": "Azzurro 150",
+    "slug": "azzurro-150",
+    "price": "150.00",
+    "sale_price": "100.00",
+    "on_sale": "true",
+    "short": "SONG — siloed static-file hosting with magic-link access, set up for you in a day.",
+    "description": "Azzurro 150 pairs AzzurroTech's SONG static hosting service with a one-day guided setup. Your JavaScript, CSS and HTML live in their own silo, served fast, with magic-link access to the file manager and encrypted text nodes available for sensitive assets.",
+    "image": "assets/icons/auth.png",
+    "featured": "true",
+    "order": "1"
+  },
+  {
+    "id": "azzurro-1500",
+    "name": "Azzurro 1500",
+    "slug": "azzurro-1500",
+    "price": "1500.00",
+    "sale_price": "",
+    "on_sale": "false",
+    "short": "POD — an HTML-form filesystem database with encrypted values, deployed to your data.",
+    "description": "Azzurro 1500 deploys AzzurroTech's POD filesystem database for your team. Records live on disk as XML, exposed as XML or JSON, with siloed directories, symlink-based secure sharing, a running element index, and encrypted storage of sensitive values. Includes schema design and a half-day of coaching.",
+    "image": "assets/icons/database.png",
+    "featured": "true",
+    "order": "2"
+  },
+  {
+    "id": "azzurro-consulting-call",
+    "name": "Azzurro Consulting Call",
+    "slug": "azzurro-consulting-call",
+    "price": "0.00",
+    "sale_price": "",
+    "on_sale": "false",
+    "short": "A free discovery call — share your challenges and we outline a roadmap and options, at no cost.",
+    "description": "Consultation is always free. Book a discovery call to share your challenges; we will outline a roadmap and potential options with no obligation. The booking is handled through our Proton Calendar.",
+    "image": "assets/icons/data.png",
+    "featured": "true",
+    "order": "3"
+  },
+  {
+    "id": "azzurro-rapid",
+    "name": "Azzurro Rapid",
+    "slug": "azzurro-rapid",
+    "price": "15.00",
+    "sale_price": "1.00",
+    "on_sale": "true",
+    "short": "SHEPHERD — a rapid assessment of one page, service or integration using zero-knowledge tooling.",
+    "description": "Azzurro Rapid applies AzzurrroTech's SHEPHERD zero-knowledge security tooling to a single page, service or integration: a focused check of the exposed surface with a written security notice brief, delivered within 48 hours.",
+    "image": "assets/icons/security.png",
+    "featured": "true",
+    "order": "4"
+  },
+  {
+    "id": "azzurrotech-platform",
+    "name": "AzzurroTech Platform",
+    "slug": "azzurrotech-platform",
+    "price": "1190.00",
+    "sale_price": "",
+    "on_sale": "false",
+    "short": "ATP + STENELLA — one data platform: many RSS feeds become one, websites are hosted and managed from a single console.",
+    "description": "The AzzurroTech Platform turns your organisation's many RSS feeds into a single feed, hosts and manages your websites, and exposes every song, pod and shepherd feature behind one console, with client management, an encrypted secrets vault and transparent billing. Includes deployment on your infrastructure and a day of onboarding.",
+    "image": "assets/logo.png",
+    "featured": "false",
+    "order": "5"
+  }
+]

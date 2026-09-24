@@ -1,368 +1,201 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Azzurro Tech - Modern Web Platform</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Azzurro Technology inc. — Software Problem Solved</title>
+<meta name="description" content="Based in Canada, Azzurro Technology blends deep expertise in open-source software and cutting-edge data sovereignty solutions. Our mission is simple: get your software problem solved." />
+<link rel="alternate" type="application/rss+xml" title="Azzurro Technology inc. » Feed" href="/s/feed/azzurrotech/combined.xml" />
+<link rel="alternate" type="application/atom+xml" title="Azzurro Technology inc. » Atom Feed" href="/s/feed/azzurrotech/combined.atom" />
+<link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-    <header class="header">
-        <nav class="nav">
-            <div class="logo">
-                <img src="assets/logo.png" alt="Azzurro Tech Logo" onerror="this.src='https://via.placeholder.com/150x50/0066cc/white?text=AZZURRO+TECH'">
-            </div>
-            <ul class="nav-links">
-                <li><a href="#home" class="nav-link active">Home</a></li>
-                <li><a href="#services" class="nav-link">Services</a></li>
-                <li><a href="#components" class="nav-link">Components</a></li>
-                <li><a href="#pricing" class="nav-link">Pricing</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
-            </ul>
-            <div class="auth-buttons">
-                <button class="btn btn-secondary" onclick="showLoginModal()">Sign In</button>
-                <button class="btn btn-primary" onclick="showSignupModal()">Get Started</button>
-            </div>
-            <div class="mobile-menu-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </nav>
-    </header>
-
-    <main>
-        <section id="home" class="hero">
-            <div class="hero-content">
-                <h1 class="hero-title">The Complete Web Platform Stack</h1>
-                <p class="hero-subtitle">AzzurroTech combines the power of AzzurroTech projects (Go-based services) and Emperor42 projects (JavaScript web components) into one seamless platform.</p>
-                <div class="hero-buttons">
-                    <button class="btn btn-primary btn-large" onclick="scrollToSection('services')">Explore Services</button>
-                    <button class="btn btn-secondary btn-large" onclick="showDemoModal()">Watch Demo</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="services" class="services-section">
-            <div class="container">
-                <h2 class="section-title">Platform Services</h2>
-                <p class="section-subtitle">Enterprise-grade solutions for modern web applications</p>
-
-                <div class="services-grid">
-                    <div class="service-card">
-                        <div class="service-icon">
-                            <img src="assets/icons/data.png" alt="Data Platform" onerror="this.src='https://via.placeholder.com/64/0066cc/white?text=DATA'">
-                        </div>
-                        <h3 class="service-title">Stenella Data Platform</h3>
-                        <p class="service-description">Enterprise data aggregation and normalization from multiple sources with real-time processing.</p>
-                        <div class="service-features">
-                            <span class="feature-tag">Data Integration</span>
-                            <span class="feature-tag">Real-time Processing</span>
-                            <span class="feature-tag">Multi-source</span>
-                        </div>
-                        <button class="btn btn-outline" onclick="useService('stenella')">Learn More</button>
-                    </div>
-
-                    <div class="service-card">
-                        <div class="service-icon">
-                            <img src="assets/icons/security.png" alt="Security" onerror="this.src='https://via.placeholder.com/64/0066cc/white?text=SEC'">
-                        </div>
-                        <h3 class="service-title">Shepherd Security</h3>
-                        <p class="service-description">Comprehensive firewall protection and automated client billing with advanced security controls.</p>
-                        <div class="service-features">
-                            <span class="feature-tag">Firewall Rules</span>
-                            <span class="feature-tag">Access Control</span>
-                            <span class="feature-tag">Automated Billing</span>
-                        </div>
-                        <button class="btn btn-outline" onclick="useService('shepherd')">Learn More</button>
-                    </div>
-
-                    <div class="service-card">
-                        <div class="service-icon">
-                            <img src="assets/icons/auth.png" alt="Authentication" onerror="this.src='https://via.placeholder.com/64/0066cc/white?text=AUTH'">
-                        </div>
-                        <h3 class="service-title">Song Authentication</h3>
-                        <p class="service-description">Magic link-based passwordless authentication with device tracking and security features.</p>
-                        <div class="service-features">
-                            <span class="feature-tag">Passwordless</span>
-                            <span class="feature-tag">Magic Links</span>
-                            <span class="feature-tag">Device Security</span>
-                        </div>
-                        <button class="btn btn-outline" onclick="useService('song')">Learn More</button>
-                    </div>
-
-                    <div class="service-card">
-                        <div class="service-icon">
-                            <img src="assets/icons/database.png" alt="Database" onerror="this.src='https://via.placeholder.com/64/0066cc/white?text=DB'">
-                        </div>
-                        <h3 class="service-title">Pod Database</h3>
-                        <p class="service-description">HTML form-based database system with SQLite backend, no schema or configuration required.</p>
-                        <div class="service-features">
-                            <span class="feature-tag">No-SQL Forms</span>
-                            <span class="feature-tag">SQLite Backup</span>
-                            <span class="feature-tag">CRUD Operations</span>
-                        </div>
-                        <button class="btn btn-outline" onclick="useService('pod')">Learn More</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="components" class="components-section">
-            <div class="container">
-                <h2 class="section-title">Web Components Integration</h2>
-                <p class="section-subtitle">Emperor42 web components for modern web applications</p>
-
-                <div class="components-grid">
-                    <div class="component-card">
-                        <div class="component-header">
-                            <img src="assets/components/veni.png" alt="VENI" onerror="this.src='https://via.placeholder.com/80/0066cc/white?text=VENI'">
-                            <h3>VENI Web Components</h3>
-                        </div>
-                        <p>JavaScript solution for finding HTML web components with automatic component generation from templates.</p>
-                        <button class="btn btn-primary" onclick="useComponent('veni')">Use VENI</button>
-                    </div>
-
-                    <div class="component-card">
-                        <div class="component-header">
-                            <img src="assets/components/vidi.png" alt="VIDI" onerror="this.src='https://via.placeholder.com/80/0066cc/white?text=VIDI'">
-                            <h3>VIDI Data Visualization</h3>
-                        </div>
-                        <p>Data management and visualization system with card-based displays and CORS-aware data handling.</p>
-                        <button class="btn btn-primary" onclick="useComponent('vidi')">Use VIDI</button>
-                    </div>
-
-                    <div class="component-card">
-                        <div class="component-header">
-                            <img src="assets/components/vici.png" alt="VICI" onerror="this.src='https://via.placeholder.com/80/0066cc/white?text=VICI'">
-                            <h3>VICI Change Management</h3>
-                        </div>
-                        <p>Web-based change management system with WordPress-like admin interface and version control.</p>
-                        <button class="btn btn-primary" onclick="useComponent('vici')">Use VICI</button>
-                    </div>
-
-                    <div class="component-card">
-                        <div class="component-header">
-                            <img src="assets/components/vini.png" alt="VINI" onerror="this.src='https://via.placeholder.com/80/0066cc/white?text=VINI'">
-                            <h3>VINI Workflows</h3>
-                        </div>
-                        <p>JavaScript-based web process definition system for secure programmatic user flow management.</p>
-                        <button class="btn btn-primary" onclick="useComponent('vini')">Use VINI</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="pricing" class="pricing-section">
-            <div class="container">
-                <h2 class="section-title">Simple Pricing</h2>
-                <p class="section-subtitle">Choose the perfect plan for your needs</p>
-
-                <div class="pricing-grid">
-                    <div class="pricing-card">
-                        <h3 class="pricing-title">Starter</h3>
-                        <div class="pricing-price">$29<span>/month</span></div>
-                        <ul class="pricing-features">
-                            <li>Stenella Data Platform</li>
-                            <li>Pod Database</li>
-                            <li>VIDI Visualization</li>
-                            <li>Basic Security</li>
-                            <li>24/4 Support</li>
-                        </ul>
-                        <button class="btn btn-primary" onclick="selectPlan('starter')">Get Started</button>
-                    </div>
-
-                    <div class="pricing-card featured">
-                        <div class="popular-badge">MOST POPULAR</div>
-                        <h3 class="pricing-title">Professional</h3>
-                        <div class="pricing-price">$99<span>/month</span></div>
-                        <ul class="pricing-features">
-                            <li>Everything in Starter</li>
-                            <li>Shepherd Security Suite</li>
-                            <li>Song Authentication</li>
-                            <li>VINI Workflow Builder</li>
-                            <li>Premium Support</li>
-                            <li>Custom Integrations</li>
-                        </ul>
-                        <button class="btn btn-primary btn-large" onclick="selectPlan('professional')">Get Started</button>
-                    </div>
-
-                    <div class="pricing-card">
-                        <h3 class="pricing-title">Enterprise</h3>
-                        <div class="pricing-price">$299<span>/month</div>
-                        <ul class="pricing-features">
-                            <li>Everything in Professional</li>
-                            <li>Advanced Security Features</li>
-                            <li>Dedicated Support</li>
-                            <li>Custom Development</li>
-                            <li>On-premise Options</li>
-                            <li>SLAs</li>
-                        </ul>
-                        <button class="btn btn-primary" onclick="selectPlan('enterprise')">Contact Sales</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="contact" class="contact-section">
-            <div class="container">
-                <h2 class="section-title">Get Started Today</h2>
-                <p class="section-subtitle">Ready to transform your web application? Contact us for a free consultation.</p>
-
-                <div class="contact-content">
-                    <div class="contact-info">
-                        <h3>Contact Information</h3>
-                        <div class="contact-item">
-                            <strong>Email:</strong> hello@azzurro.tech
-                        </div>
-                        <div class="contact-item">
-                            <strong>Phone:</strong> +1 (555) 123-4567
-                        </div>
-                        <div class="contact-item">
-                            <strong>Address:</strong> 123 Tech Street, San Francisco, CA
-                        </div>
-                    </div>
-
-                    <form class="contact-form" onsubmit="handleContactSubmit(event)">
-                        <h3>Send us a message</h3>
-                        <div class="form-group">
-                            <input type="text" id="name" name="name" placeholder="Your Name" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" id="email" name="email" placeholder="Your Email" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="company" name="company" placeholder="Company Name">
-                        </div>
-                        <div class="form-group">
-                            <select id="service" name="service">
-                                <option value="">Select Service</option>
-                                <option value="stenella">Stenella Data Platform</option>
-                                <option value="shepherd">Shepherd Security</option>
-                                <option value="song">Song Authentication</option>
-                                <option value="pod">Pod Database</option>
-                                <option value="components">Web Components</option>
-                                <option value="custom">Custom Solution</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <textarea id="message" name="message" placeholder="Your Message" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-large">Send Message</button>
-                    </form>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>Azzurro Tech Platform</h4>
-                    <p>The complete web platform combining AzzurroTech and Emperor42 projects.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Projects</h4>
-                    <ul>
-                        <li><a href="#">Stenella</a></li>
-                        <li><a href="#">Shepherd</a></li>
-                        <li><a href="#">Song</a></li>
-                        <li><a href="#">Pod</a></li>
-                        <li><a href="#">VENI</a></li>
-                        <li><a href="#">VIDI</a></li>
-                        <li><a href="#">VICI</a></li>
-                        <li><a href="#">VINI</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="#">Documentation</a></li>
-                        <li><a href="#">API Reference</a></li>
-                        <li><a href="#">Tutorials</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Support</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Connect</h4>
-                    <ul>
-                        <li><a href="mailto:hello@azzurro.tech">hello@azzurro.tech</a></li>
-                        <li><a href="#">Twitter</a></li>
-                        <li><a href="#">LinkedIn</a></li>
-                        <li><a href="#">GitHub</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Azzurro Technology Inc. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Modal Templates -->
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('login')">×</span>
-            <h2>Sign In</h2>
-            <form onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <input type="email" placeholder="Email" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" placeholder="Password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Sign In</button>
-            </form>
-        </div>
+<body data-page="home">
+<header class="header">
+  <nav class="nav">
+    <a class="logo" href="index.html"><img src="assets/logo.png" alt="Azzurro Technology inc." /></a>
+    <button class="mobile-menu-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a class="active" href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="posts.html">Posts</a></li>
+      <li><a href="search.html">Search</a></li>
+      <li><a href="my-account.html">My Account</a></li>
+      <li><a href="/s/portal?client=azzurrotech">Platform</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="cart-link" href="cart.html" aria-label="Cart">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12z" /><circle cx="9" cy="20" r="1.6" /><circle cx="17" cy="20" r="1.6" /></svg>
+        <span class="cart-badge hidden" data-cart-badge>0</span>
+      </a>
     </div>
+  </nav>
+</header>
 
-    <div id="signup-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('signup')">×</span>
-            <h2>Get Started</h2>
-            <form onsubmit="handleSignup(event)">
-                <div class="form-group">
-                    <input type="text" placeholder="Full Name" required>
-                </div>
-                <div class="form-group">
-                    <input type="email" placeholder="Email" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" placeholder="Password" required>
-                </div>
-                <div class="form-group">
-                    <select>
-                        <option>Select Plan</option>
-                        <option>Starter - $29/month</option>
-                        <option>Professional - $99/month</option>
-                        <option>Enterprise - $299/month</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Get Started</button>
-            </form>
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Ready to transform your technology stack?</h1>
+      <p class="tagline">Explore our portfolio – see case studies of intriguing open source software solutions, security notice briefs, and a catalogue of select solution vendors who also recognize the value of open source software.</p>
+      <div class="pillars">
+        <div class="pillar">
+          <h3>Explore our portfolio</h3>
+          <p>Case studies of open source solutions, security notice briefs, and a catalogue of vendors who value open source software.</p>
+          <a class="btn" href="shop.html">Our Solutions</a>
         </div>
-    </div>
-
-    <div id="demo-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('demo')">×</span>
-            <h2>Watch Demo</h2>
-            <div class="demo-video">
-                <img src="https://via.placeholder.com/600x400/0066cc/white?text=Demo+Video+Placeholder" alt="Demo Video">
-            </div>
+        <div class="pillar">
+          <h3>Schedule a discovery call</h3>
+          <p>Share your challenges; we’ll outline a roadmap and potential options – at no cost.</p>
+          <a class="btn" href="https://calendar.proton.me/bookings#jAF1YRNT6csw0T6JMUk_xrmoMHHuyWWuBSC7JYvpGE0=" target="_blank" rel="noopener">Free Consultation</a>
         </div>
+        <div class="pillar">
+          <h3>Join the community</h3>
+          <p>Contribute to our open-source projects on GitHub and benefit from shared improvements.</p>
+          <a class="btn" href="https://github.com/azzurrotech" target="_blank" rel="noopener">Our GitHub</a>
+        </div>
+      </div>
+      <p style="margin-top:34px;color:#dbe3f2">Get in touch — contact us today and take the first step toward a truly independent technology future. Consultation is always free!</p>
+      <div class="hero-ctas">
+        <a class="btn light" href="https://calendar.proton.me/bookings#jAF1YRNT6csw0T6JMUk_xrmoMHHuyWWuBSC7JYvpGE0=" target="_blank" rel="noopener">Free Consultation Meeting</a>
+        <a class="btn light" href="https://github.com/azzurrotech" target="_blank" rel="noopener">Our GitHub</a>
+        <a class="btn light" href="https://www.linkedin.com/company/azzurro-tech" target="_blank" rel="noopener">Our LinkedIn</a>
+        <a class="btn light" href="shop.html">Our Solutions</a>
+        <a class="btn light" href="posts.html">Our Newsfeed</a>
+      </div>
     </div>
+  </section>
 
-    <!-- Emperor42 Components Scripts -->
-    <script src="assets/scripts/veni.js" defer></script>
-    <script src="assets/scripts/vidi.js" defer></script>
-    <script src="assets/scripts/vici.js" defer></script>
-    <script src="assets/scripts/vini.js" defer></script>
+  <section class="section alt">
+    <div class="wrap">
+      <h2>Featured products</h2>
+      <div class="cards" id="hero-products"></div>
+      <p style="margin-top:20px"><a class="btn ghost" href="shop.html">Browse the full shop</a></p>
+    </div>
+  </section>
 
-    <!-- Azzurro Tech Website Scripts -->
-    <script src="app.js"></script>
-    <script src="vini-integration.js"></script>  
+  <section class="section">
+    <div class="wrap">
+      <h2>Latest posts</h2>
+      <p class="lede">Security notice briefs, open-source perspectives and assurance notes — published to our single, combined feed.</p>
+      <div class="cards" id="latest-posts"></div>
+      <p style="margin-top:20px"><a class="btn ghost" href="posts.html">All posts</a> &nbsp;·&nbsp; <a href="/s/feed/azzurrotech/combined.xml">RSS</a> &nbsp;·&nbsp; <a href="/s/feed/azzurrotech/combined.atom">Atom</a></p>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <h2>Who We Are</h2>
+      <p>Based in Canada, Azzurro Technology blends deep expertise in open-source software and cutting-edge data sovereignty solutions. Our mission is simple: give organizations certainty that with open source based software solutions, we can get their software problem solved.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>What We Do</h2>
+      <div class="pillars">
+        <div class="pillar">
+          <div class="num">1</div>
+          <h3>Integrated Open-Source Software Solutions</h3>
+          <p>From concept to production, we design, develop, and deploy end-to-end open-source solutions tailored to your business needs. Every solution ships with a comprehensive warranty, guaranteeing performance, security patches, and ongoing support for the lifespan of the deployment. Whether you need a micro-service architecture, a real-time analytics platform, or a bespoke workflow engine, we deliver robust, auditable code you can trust. Contact our team through the form below to get started!</p>
+        </div>
+        <div class="pillar">
+          <div class="num">2</div>
+          <h3>Ensure Your Solution Meets Your Requirements</h3>
+          <p>We provide assurance that any given solution meets all your organizational requirements. This does not simply include use cases, but legislative requirements (GDPR, PIPEDA), industry standards and security standards from industry and internally to your organization. We will report on any gaps and offer clear recommendations which can be immediately implemented to solve the identified issues. If you have concerns during the warranty period, we will address them immediately or offer a full refund of any payments.</p>
+        </div>
+        <div class="pillar">
+          <div class="num">3</div>
+          <h3>Complementary Advice and a Catalogue of Exceptional Vendors</h3>
+          <p>We always offer free advice and publish our blog with various content related to security, open source software and other similar topics. We have our catalogue which includes offers from various software development companies, SaaS vendors, open source projects and cloud providers who recognize the important role that open source software plays in a modern technical stack. We do offer paid support services for different advice solutions, but these services are never billed hourly, only based on outcome.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <h2>Our Values</h2>
+      <div class="values">
+        <ul>
+          <li><strong>Sovereignty</strong>Empower clients to own their data and technology.</li>
+          <li><strong>Integrity</strong>Deliver solutions that meet the highest standards of security and reliability.</li>
+          <li><strong>Collaboration</strong>Work hand-in-hand with partners, customers, and the open-source community.</li>
+          <li><strong>Innovation</strong>Continuously push the boundaries of what software and hardware can achieve together.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Why Choose Azzurro?</h2>
+      <div class="why">
+        <ul>
+          <li><strong>Open-Source First</strong>Transparency, community-driven security, and no hidden licensing fees.</li>
+          <li><strong>End-to-End Accountability</strong>Warranty coverage on solutions, rigorous testing of integrated software stacks, and support contracts as needed to augment are always free advice.</li>
+          <li><strong>Canadian Reliability</strong>Local expertise, compliance with Canadian and European data regulations, and a commitment to friendly service for organizations of any size or scope.</li>
+          <li><strong>Outcome Based Pricing</strong>Free advice and recommendations, pay only to have warranty on the suggested solution or to have the solution deployed.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <h2>Get in touch</h2>
+      <p class="lede">Consultation is always free. Leave a message and we will reply from info@azzurro.tech.</p>
+      <form id="contact-form" class="panel" style="max-width:640px">
+        <label>Your name<input id="cf-name" type="text" name="name" required autocomplete="name" /></label>
+        <label>Email address<input id="cf-email" type="email" name="email" required autocomplete="email" /></label>
+        <label>Message<textarea id="cf-message" name="message" rows="5" required></textarea></label>
+        <button class="btn" type="submit">Send message</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="cols">
+    <div>
+      <h4>Azzurro Technology inc.</h4>
+      <p>Software problem solved.</p>
+      <p>info@azzurro.tech</p>
+      <p><a href="https://github.com/azzurrotech" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/company/azzurro-tech" target="_blank" rel="noopener">LinkedIn</a></p>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="shop.html">Products</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="refund_returns.html">Terms and Conditions</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="my-account.html">My Account</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="posts.html">Posts</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Updates</h4>
+      <ul>
+        <li><a href="/s/feed/azzurrotech/combined.xml">RSS Feed</a></li>
+        <li><a href="/s/feed/azzurrotech/combined.atom">Atom Feed</a></li>
+        <li><a href="/s/portal?client=azzurrotech">Client Portal</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="bottom">
+    <span>© <span id="year"></span> Azzurro Technology inc. All rights reserved.</span>
+    <span><a href="/s/portal?client=azzurrotech">Powered by the stenella platform</a></span>
+  </div>
+</footer>
+
+<script src="/s/static/lib/veni.js" defer></script>
+<script src="/s/static/lib/vidi.js" defer></script>
+<script src="/s/static/lib/vici.js" defer></script>
+<script src="/s/static/lib/vini.js" defer></script>
+<script src="app.js" defer></script>
 </body>
 </html>

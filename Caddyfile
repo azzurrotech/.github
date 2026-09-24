@@ -1,0 +1,23 @@
+# Caddyfile — route azzurro.tech / www.azzurro.tech to the stenella platform.
+#
+# The stenella server hosts the client site: start it (in the stenella repo)
+# with:
+#
+#   ./stenella --host-site azzurro.tech=azzurrotech \
+#              --host-site www.azzurro.tech=azzurrotech
+#
+# stenella listens on 8084 (AGENTS.md port table). Caddy terminates TLS and
+# proxies everything — the site, the /s/ platform namespace (data, feeds,
+# portal, JS libraries) — to the one platform process.
+#
+# Start with:  caddy run --config Caddyfile
+
+azzurro.tech, www.azzurro.tech {
+	reverse_proxy 127.0.0.1:8084
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}
