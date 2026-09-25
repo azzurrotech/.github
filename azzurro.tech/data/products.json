@@ -46,7 +46,7 @@
     "sale_price": "1.00",
     "on_sale": "true",
     "short": "SHEPHERD — a rapid assessment of one page, service or integration using zero-knowledge tooling.",
-    "description": "Azzurro Rapid applies AzzurrroTech's SHEPHERD zero-knowledge security tooling to a single page, service or integration: a focused check of the exposed surface with a written security notice brief, delivered within 48 hours.",
+    "description": "Azzurro Rapid applies AzzurroTech's SHEPHERD zero-knowledge security tooling to a single page, service or integration: a focused check of the exposed surface with a written security notice brief, delivered within 48 hours.",
     "image": "assets/icons/security.png",
     "featured": "true",
     "order": "4"

@@ -7,7 +7,7 @@ a **client of the stenella platform**:
 |---|---|
 | Homepage + CTAs (booking, GitHub, LinkedIn, shop, posts) | `index.html` |
 | Shop: 5 products with sale badges/prices | pod table `azzurrotech/products` → `shop.html`, `product.html` |
-| Cart / checkout | vici-backed cookie cart + vini checkout workflow (`cart.html`, `checkout.html` → cart) |
+| Cart / checkout | vici-backed cookie cart + vini **local demonstration** workflow (`cart.html`, `checkout.html` → cart) |
 | Posts + search | pod table `azzurrotech/posts` → `posts.html` (rendered by **vidi**), `post.html`, `search.html` |
 | My account | `my-account.html` → the platform portal (`/s/portal?client=azzurrotech`) |
 | Privacy policy / Terms (refund_returns) | static pages with verbatim live copy |
@@ -21,11 +21,13 @@ a **client of the stenella platform**:
   `veni` (custom elements `az-product-card` / `az-post-card`), `vidi` (posts
   listing + paging), `vici` (cookie-backed cart, `azzurro_cart`), `vini`
   (checkout workflow, persisted under `vini_workflows`).
-- Content is **not** in this repo — it lives in pod tables and is fetched at
-  runtime from `/s/data/azzurrotech/products` and `/s/data/azzurrotech/posts`.
-  `data/*.json` are the **seed files** replayed by [`deploy.sh`](../deploy.sh).
-- All `document.cookie` access goes through `vici`; all card/article content is
-  inserted via text nodes (escaped) — no raw HTML injection from pod data.
+- Content is **not** served by a local CMS — it lives in pod tables and is
+  fetched at runtime from `/s/data/azzurrotech/products` and
+  `/s/data/azzurrotech/posts`. `data/*.json` are the **seed files** replayed by
+  [`deploy.sh`](../deploy.sh).
+- All `document.cookie` access goes through `vici`; `safe.js` validates URLs and
+  converts article markup to a constrained node tree. No pod-controlled value
+  is assigned to `innerHTML`.
 
 ## Pages
 
@@ -50,3 +52,19 @@ Products/posts will not load without the platform (`/s/data`, `/s/static/lib`).
 
 `legacy/` parks superseded artifacts (stale veni/vidi/vici/vini copies, the old
 `vini-integration.js`, and previous implementation plans).
+
+## What this deployment does not provide
+
+- Checkout is a browser-local VINI demonstration. It does not capture payment,
+  create a server-side order, issue an invoice, or send the email entered in
+  the workflow. A real purchase requires a separate server-side order/payment
+  implementation and a quote or invoice process.
+- The “My Account” page links to the client portal for site/content/platform
+  configuration; it is not a WordPress/WooCommerce consumer account or order
+  history system.
+- WordPress `wp-json`, WooCommerce APIs, and oEmbed are not implemented. The
+  supported public content surfaces are pod JSON, RSS/Atom, and the combined
+  feed JSON endpoint.
+- The privacy and terms pages preserve published legal text, but their account,
+  payment, comment, and media-upload descriptions are not claims that this
+  static deployment currently implements those systems.

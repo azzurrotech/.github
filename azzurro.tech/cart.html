@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Cart — Azzurro Technology inc.</title>
-<meta name="description" content="Your Azzurro cart. Checkout runs through a client-side workflow; invoices follow by email." />
+<meta name="description" content="Your Azzurro cart. The checkout workflow is a local demonstration and does not capture payment or place an order." />
 <link rel="alternate" type="application/rss+xml" title="Azzurro Technology inc. » Feed" href="/s/feed/azzurrotech/combined.xml" />
 <link rel="alternate" type="application/atom+xml" title="Azzurro Technology inc. » Atom Feed" href="/s/feed/azzurrotech/combined.atom" />
 <link rel="stylesheet" href="styles.css" />
@@ -40,12 +40,12 @@
     </div>
     <div id="cart-lines"></div>
     <p class="cart-total" id="cart-total">Total: $0.00</p>
-    <p class="muted">Shipping, taxes, and discounts calculated at checkout.</p>
+    <p class="muted">This browser-only cart is an estimate. Shipping, taxes, discounts, and final terms are confirmed by Azzurro.</p>
     <div class="row">
       <button id="checkout-btn" class="btn" disabled>Go to checkout</button>
       <a class="btn ghost" href="shop.html">Continue shopping</a>
     </div>
-    <p class="notice" style="margin-top:22px">Payments are not captured on this site today — checkout records your order and we invoice you by email (see the <a href="refund_returns.html">Terms and Conditions</a>).</p>
+    <p class="notice" style="margin-top:22px">This checkout is a local workflow demonstration. It does not take payment, create an order, send an invoice, or transmit your email. To buy, contact <a href="mailto:info@azzurro.tech">info@azzurro.tech</a> and request a quote.</p>
   </div>
 </main>
 
@@ -57,7 +57,7 @@
     <div class="steps"></div>
     <div class="wf-body"></div>
     <div class="row" style="justify-content:flex-end;margin-top:20px">
-      <button class="btn ghost" onclick="document.getElementById('checkout-modal').classList.remove('open')">Cancel</button>
+      <button id="checkout-cancel" class="btn ghost" type="button">Cancel</button>
       <button class="btn wf-advance" type="button">Continue</button>
     </div>
   </div>
@@ -102,6 +102,7 @@
   </div>
 </footer>
 
+<script src="safe.js" defer></script>
 <script src="/s/static/lib/veni.js" defer></script>
 <script src="/s/static/lib/vidi.js" defer></script>
 <script src="/s/static/lib/vici.js" defer></script>

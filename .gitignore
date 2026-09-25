@@ -1,1 +1,4 @@
 .lint-results
+.env
+.env.*
+!.env.example

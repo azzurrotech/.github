@@ -7,7 +7,8 @@
     "category": "Security Brief",
     "excerpt": "A groundbreaking academic paper from researchers at the University of Toronto, Vector Institute, University of Cambridge, and ServiceNow has demonstrated proof-of-concept malware that represents a fundamental shift in cybersecurity threats. The study shows that artificial intelligence agents can enable computer worms that generate tailored attack strategies in real-time — moving beyond the fixed exploit code that defined previous generations of malware.",
     "image": "",
-    "order": "1"
+    "order": "1",
+    "body": "The research matters because it treats malware as an adaptive system rather than a fixed script. An agent can inspect a target, choose an approach, and revise that approach as the environment changes.\n\nThat does not make every proof of concept an immediate production threat. It does mean defenders should assume that automation can shorten the path from reconnaissance to exploitation. The practical response is layered: reduce exposure, keep systems patched, monitor behaviour rather than relying only on signatures, and rehearse containment before an incident depends on it.\n\nThis brief is an educational summary, not a claim that the cited paper predicts a specific attack against any organisation."
   },
   {
     "id": "azzurro-secure-may-2026-i",
@@ -17,7 +18,8 @@
     "category": "Security Brief",
     "excerpt": "As we move into May 2026, the cybersecurity landscape has shifted from rapid patching to active exploitation of previously disclosed flaws. Recent intelligence covers new active threats and the open-source defenses available to counter them — from fix-it-week rotation to zero-knowledge verification.",
     "image": "",
-    "order": "2"
+    "order": "2",
+    "body": "May’s security notes collect a simple lesson: an advisory is useful only when it changes a decision. We review active exploitation reports, vendor fixes, and the open-source controls that can make a vulnerable service less reachable.\n\nStart with an inventory of exposed services and the patch window that matches their importance. Then verify backups, logging, and recovery procedures. A fix that is installed but not validated is still an assumption, and a backup that has never been restored is only a hope.\n\nThe items in this edition are prompts for a security conversation, not a substitute for a threat model or professional incident response."
   },
   {
     "id": "security-summary-2026-week-1",
@@ -27,7 +29,8 @@
     "category": "Security Notice",
     "excerpt": "Our new weekly format — a post every 7 days on system security. These are the 8 security notices from 1 January 2026 until 7 January 2026, covering Veeam, and more.",
     "image": "",
-    "order": "3"
+    "order": "3",
+    "body": "This first weekly summary brings the week’s notices into one place. The common thread is not a single product or vulnerability; it is the time between disclosure, detection, and remediation.\n\nUse the summary to check whether the affected technology is present, whether compensating controls are active, and who owns the next action. Keep the original vendor guidance linked from the ticket so decisions remain auditable.\n\nA concise index is useful, but it is not a substitute for reading the advisory that applies to your environment."
   },
   {
     "id": "the-path-to-true-data-sovereignty",
@@ -37,7 +40,8 @@
     "category": "Opinion",
     "excerpt": "In the modern digital landscape, businesses face a paradoxical challenge: we need the power of Artificial Intelligence to drive innovation, yet we are increasingly wary of handing our most sensitive data to rented cloud platforms.",
     "image": "",
-    "order": "4"
+    "order": "4",
+    "body": "Data sovereignty is often discussed as a location question. In practice it also includes control, observability, and the ability to keep working when a provider, contract, or political boundary changes.\n\nA useful architecture records where data is stored, which service can read it, how it is backed up, and what happens during an outage. Those answers are more meaningful than a supplier’s broad claim that a service is “in the cloud.”\n\nStart with the data that would create the largest operational or personal risk. Reduce unnecessary copies, document dependencies, and test a provider-independent recovery path before a crisis makes the decision for you."
   },
   {
     "id": "security-notices-30-dec-to-5-jan",
@@ -47,7 +51,8 @@
     "category": "Security Notice",
     "excerpt": "These are the 2 security notices from December 30, 2025 to January 5, 2026, including an IBM Security Advisory rated High affecting core server infrastructure.",
     "image": "",
-    "order": "5"
+    "order": "5",
+    "body": "The notices in this period cover infrastructure advisories with practical consequences for administrators. Prioritise systems that are internet-facing, then check whether the same vulnerable component appears inside internal services.\n\nFor each item, record the affected version, the mitigation, the owner, and the verification evidence. A ticket saying “patched” is not enough if the service was restarted with an old image or if a compensating control was never enabled.\n\nThe summary is a starting point for triage. Follow the authoritative advisory and your organisation’s incident process for the final decision."
   },
   {
     "id": "security-notices-29-dec",
@@ -57,7 +62,8 @@
     "category": "Security Notice",
     "excerpt": "These are the 4 security notices from 2025-12-29, including a Dell security advisory typically rated High because it affects core server and storage platforms.",
     "image": "",
-    "order": "6"
+    "order": "6",
+    "body": "The 29 December notices include advisories affecting systems that commonly sit on administrative networks. A patch window should account for the time needed to validate failover, not only the time needed to install an update.\n\nCheck backups, configuration backups, and the recovery runbook before changing a critical service. If an update cannot be applied immediately, document the compensating control and its expiry date so the exception does not become permanent.\n\nUse the linked advisory for exact affected versions and mitigations. This post is a navigation aid, not a substitute for the vendor notice."
   },
   {
     "id": "security-notices-23-to-28-dec",
@@ -67,7 +73,8 @@
     "category": "Security Notice",
     "excerpt": "These are the 5 security notices from 23 December 2025 until 28 December 2025, including a MongoDB security advisory rated Critical.",
     "image": "",
-    "order": "7"
+    "order": "7",
+    "body": "This round of notices spans several vendors and severity levels. The practical response is to match each advisory to the software inventory, then rank the result by exposure and business impact.\n\nHigh severity is not automatically the highest priority for every system, and a lower severity issue can still matter on a network boundary. Make the reasoning explicit in the remediation record.\n\nAfter the fixes are deployed, verify from the same paths an attacker would use. Monitoring, segmentation, and a tested recovery plan remain important even when every listed patch is installed."
   },
   {
     "id": "security-notices-22-dec",
@@ -77,7 +84,8 @@
     "category": "Security Notice",
     "excerpt": "These are the 5 security notices from 22 December 2025 — including WatchGuard Fireware OS (CVE-2025-14733) and further advisories from the Canadian Centre for Cyber Security.",
     "image": "",
-    "order": "8"
+    "order": "8",
+    "body": "The 22 December notices include firewall, operating-system, and software advisories. Treat them as a cross-check against the systems that enforce your network boundaries.\n\nVerify that management interfaces are not exposed unnecessarily, that default accounts and credentials have been removed, and that configuration changes are captured in version control or an equivalent audit trail.\n\nKeep the authoritative notice with the change record. The short summary here is intended to help teams decide what to inspect first."
   },
   {
     "id": "security-notices-19-to-21-dec",
@@ -87,7 +95,8 @@
     "category": "Security Notice",
     "excerpt": "These are the 4 security notices from 19th, 20th and 21st of December 2025 — an AI-generated summary based on the advisories listed on the Canadian Centre for Cyber Security's alerts page.",
     "image": "",
-    "order": "9"
+    "order": "9",
+    "body": "These notices cover several infrastructure and application advisories from 19–21 December. The best first step is to identify whether the affected component is present, rather than assuming that a CVE number describes the local risk.\n\nFor internet-facing systems, confirm exposure and patch status independently of the advisory’s severity label. For internal systems, check segmentation and the paths that could provide a route to a more valuable environment.\n\nRecord exceptions, owners, and verification dates. A short weekly summary is useful only when it leads to an accountable action."
   },
   {
     "id": "why-get-assurance-for-open-source-software",
@@ -97,6 +106,7 @@
     "category": "Opinion",
     "excerpt": "Open-source software (OSS) powers everything from the apps on your phone to the servers that run large-scale enterprises. Its biggest strengths — transparency, community-driven innovation, and control of your own stack — also demand assurance that the software does what you need it to.",
     "image": "",
-    "order": "10"
+    "order": "10",
+    "body": "Open-source software gives teams access to capabilities that would be expensive to build alone. It also makes review, maintenance, and operational responsibility something the adopting organisation must actively arrange.\n\nAssurance should answer practical questions: which version is deployed, what dependencies does it have, how are releases verified, and who responds when a vulnerability is disclosed? Those questions are more useful than a generic claim that a project is popular or well reviewed.\n\nStart with the components that handle sensitive data or sit on a trust boundary. A small, repeatable review process is better than an expensive assessment that is never updated."
   }
 ]

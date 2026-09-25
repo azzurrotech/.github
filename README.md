@@ -9,6 +9,7 @@ azzurrotech/.github
 ├── azzurro.tech/           # the 1:1 replacement of https://www.azzurro.tech
 │   ├── *.html              # 11 pages (home, shop, product, cart, posts, …)
 │   ├── app.js              # application layer (veni/vidi/vici/vini)
+│   ├── safe.js             # pod-data URL/DOM sanitisation policy
 │   ├── styles.css          # vanilla CSS, mirrors the live palette
 │   ├── data/*.json         # seed content for the pod tables
 │   └── legacy/             # parked superseded artifacts (do not use)
@@ -31,7 +32,11 @@ services):
 - **JS libraries** (veni/vidi/vici/vini) are loaded from the platform's
   canonical copies at `/s/static/lib/*.js` — never duplicated in this repo.
 - `azzurro.tech/platform` 308-redirects to the platform portal
-  `/s/portal?client=azzurrotech`.
+  `/s/portal?client=azzurrotech`; Caddy canonicalises `www.azzurro.tech` to the
+  apex host.
+- Public post/product values are rendered through `safe.js` as text or a
+  constrained node tree. Article bodies are sanitised; pod data is never
+  assigned to `innerHTML`.
 
 ## Deploy
 
@@ -39,9 +44,11 @@ services):
 ATP_URL=http://<atp-host>:8084 ATP_PASS=<admin-password> ./deploy.sh
 ```
 
-or put `ATP_URL`/`ATP_USER`/`ATP_PASS` in a `./.env` file and run
-`./deploy.sh`. Deploys are idempotent: records carry stable ids (upsert) and
-files are uploaded with `overwrite=true`.
+or copy [`.env.example`](.env.example) to `./.env`, fill in the admin password,
+and run `./deploy.sh` (the real `.env` file is ignored). Deploys are idempotent: records carry stable ids (upsert) and files are
+uploaded with `overwrite=true`. The script fails closed on a non-2xx response,
+uses an exact JSON client-id check, and verifies the seeded ids and uploaded
+file list before printing `Done.`. It never sources or prints `.env` contents.
 
 Then run the platform (stenella repo) with the host mapping:
 
@@ -52,7 +59,15 @@ Then run the platform (stenella repo) with the host mapping:
 
 and route the domain through Caddy (`caddy run --config Caddyfile`).
 
-## Notes
+## Runtime limitations
+
+The cart and VINI checkout are deliberately local demonstrations. They do not
+capture payment, create a server-side order, send an invoice, or provide
+WooCommerce/WordPress consumer accounts. The supported public content APIs are
+pod JSON, RSS/Atom, and the JSON feed item endpoint; `wp-json` and oEmbed are
+not implemented. The optional Go demos for the Emperor42 libraries are local
+developer services and require an API token when bound beyond loopback.
+
 
 - The old integration-stack scripts, logs and fix documents (`start_*.sh`,
   `*_FIX.md`, `logs/`, `integration-framework/`, zip archives, the

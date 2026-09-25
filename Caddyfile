@@ -6,18 +6,26 @@
 #   ./stenella --host-site azzurro.tech=azzurrotech \
 #              --host-site www.azzurro.tech=azzurrotech
 #
-# stenella listens on 8084 (AGENTS.md port table). Caddy terminates TLS and
-# proxies everything — the site, the /s/ platform namespace (data, feeds,
-# portal, JS libraries) — to the one platform process.
-#
-# Start with:  caddy run --config Caddyfile
+# stenella listens on 8084. Caddy terminates TLS and proxies the site and its
+# /s/ platform namespace (data, feeds, portal, and JS libraries) to one
+# process. The www hostname is canonicalised to the apex domain so links,
+# cookies, and cached assets have one public origin.
 
-azzurro.tech, www.azzurro.tech {
+www.azzurro.tech {
+	redir https://azzurro.tech{uri} permanent
+}
+
+azzurro.tech {
 	reverse_proxy 127.0.0.1:8084
 
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
-		-X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
 		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), geolocation=(), microphone=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-origin"
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
 	}
 }
