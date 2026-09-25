@@ -14,6 +14,8 @@ a **client of the stenella platform**:
 | RSS / Atom feeds | stenella combined feed: `/s/feed/azzurrotech/combined.xml` / `.atom` |
 | oEmbed / wp-json | platform gap (documented in the end-to-end review); feeds supersede them |
 
+**Bulk Upload Ready**: All site files are structured for streamlined bulk upload via Stenella's batch upload API. The deployment process prioritizes atomic file transfers, with automatic path normalization to maintain consistent file organization. Binary and text files are handled through streamlined, efficient upload mechanisms that reduce the complexity of deploying site updates.
+
 ## Stack
 
 - **No frameworks.** Vanilla HTML5/CSS/ES6 JS. The only JS libraries are the
